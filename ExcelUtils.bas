@@ -35,3 +35,28 @@ Public Function ExcelColNum(c As String) As Integer
         If i < Len(c) Then ExcelColNum = ExcelColNum * 26
     Next
 End Function
+
+Public Function ExcelErrorType(e As Variant) As String
+    If IsError(e) Then
+        Select Case e
+            Case CVErr(xlErrDiv0)
+                ExcelErrorType = "#DIV/0!"
+            Case CVErr(xlErrNA)
+                ExcelErrorType = "#N/A"
+            Case CVErr(xlErrName)
+                ExcelErrorType = "#NAME?"
+            Case CVErr(xlErrNull)
+                ExcelErrorType = "#NULL!"
+            Case CVErr(xlErrNum)
+                ExcelErrorType = "#NUM!"
+            Case CVErr(xlErrRef)
+                ExcelErrorType = "#REF!"
+            Case CVErr(xlErrValue)
+                ExcelErrorType = "#VALUE!"
+            Case Else
+                ExcelErrorType = "#UNKNOWN_ERROR"
+        End Select
+    Else
+        ExcelErrorType = "(not an error)"
+    End If
+End Function

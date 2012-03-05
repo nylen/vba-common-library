@@ -56,3 +56,47 @@ Public Function GetFilename(ByVal p As String)
     i = InStrRev(p, "\")
     GetFilename = Mid(p, i + 1)
 End Function
+
+Private Function ListFiles_Internal(filePattern As String, attrs As Long) As Variant
+    Dim files As New List
+    Dim folderName As String
+    
+    If FolderExists(filePattern) Then
+        filePattern = TrimTrailingChars(filePattern, "\/") & "\"
+        folderName = filePattern
+    Else
+        folderName = GetDirectoryName(filePattern) & "\"
+    End If
+    
+    Dim currFilename As String
+    currFilename = Dir(filePattern, attrs)
+    
+    While currFilename <> ""
+        If (attrs And vbDirectory) = vbDirectory Then
+            If FolderExists(folderName & currFilename) _
+                And currFilename <> "." And currFilename <> ".." Then
+                
+                files.Add folderName & currFilename
+            End If
+        Else
+            files.Add folderName & currFilename
+        End If
+        currFilename = Dir
+    Wend
+    
+    If files.HasItems Then
+        ListFiles_Internal = files.Items
+    Else
+        ListFiles_Internal = Empty
+    End If
+End Function
+
+Public Function ListFiles(filePattern As String)
+    ListFiles = ListFiles_Internal(filePattern, _
+        vbReadOnly Or vbHidden Or vbSystem)
+End Function
+
+Public Function ListFolders(folderPattern As String)
+    ListFolders = ListFiles_Internal(folderPattern, _
+        vbReadOnly Or vbHidden Or vbSystem Or vbDirectory)
+End Function
