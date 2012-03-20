@@ -13,6 +13,19 @@ notOpen:
     IsWorkbookOpen = False
 End Function
 
+Public Function SheetExists(sheetName As String, Optional wb As Workbook) As Boolean
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    Dim s As Worksheet
+    
+    On Error GoTo notFound
+    Set s = wb.Sheets(sheetName)
+    SheetExists = True
+    Exit Function
+    
+notFound:
+    SheetExists = False
+End Function
+
 Public Function ExcelCol(c As Integer) As String
     ExcelCol = ExcelCol_ZeroBased(c - 1)
 End Function
@@ -34,6 +47,18 @@ Public Function ExcelColNum(c As String) As Integer
         ExcelColNum = (ExcelColNum + Asc(Mid(c, i, 1)) - 64)
         If i < Len(c) Then ExcelColNum = ExcelColNum * 26
     Next
+End Function
+
+Function CellReference(ByVal r As Long, ByVal c As Integer, Optional sheet As String = "", _
+    Optional absoluteRow As Boolean = False, Optional absoluteCol As Boolean = False) As String
+    
+    Dim ref As String
+    ref = IIf(absoluteCol, "$", "") & ExcelCol(c) & IIf(absoluteRow, "$", "") & r
+    If sheet = "" Then
+        CellReference = ref
+    Else
+        CellReference = "'" & sheet & "'!" & ref
+    End If
 End Function
 
 Public Function ExcelErrorType(e As Variant) As String

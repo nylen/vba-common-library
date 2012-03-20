@@ -1,6 +1,9 @@
 Attribute VB_Name = "FileUtils"
 Option Explicit
 
+Private Declare Function GetTempPathA Lib "kernel32" _
+    (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
+
 Public Function FileExists(ByVal testFilename As String, _
     Optional findFolders As Boolean = False) As Boolean
     
@@ -99,4 +102,21 @@ End Function
 Public Function ListFolders(folderPattern As String)
     ListFolders = ListFiles_Internal(folderPattern, _
         vbReadOnly Or vbHidden Or vbSystem Or vbDirectory)
+End Function
+
+Public Function GetTempPath() As String
+    Const MAX_PATH = 256
+    
+    Dim folderName As String
+    Dim ret As Long
+    
+    folderName = String(MAX_PATH, 0)
+    ret = GetTempPathA(MAX_PATH, folderName)
+    
+    If ret <> 0 Then
+        GetTempPath = Left(folderName, InStr(folderName, Chr(0)) - 1)
+    Else
+        Err.Raise 32000, _
+            Description:="Error getting temporary folder."
+    End If
 End Function
