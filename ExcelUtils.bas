@@ -85,3 +85,8 @@ Public Function ExcelErrorType(e As Variant) As String
         ExcelErrorType = "(not an error)"
     End If
 End Function
+
+Public Sub ShowStatusMessage(statusMessage As String)
+    Application.StatusBar = statusMessage
+    Application.Caption = Len(statusMessage) & ":" & statusMessage
+End Sub
