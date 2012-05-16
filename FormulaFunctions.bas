@@ -54,3 +54,32 @@ Public Function RangeArray(arr As Variant) As Variant
         RangeArray = arr
     End If
 End Function
+
+Public Function ColumnWidth(Optional c As Integer = 0)
+    Application.Volatile
+    Dim s As Worksheet
+    If IsObject(Application.Caller) Then
+        Set s = Application.Caller.Worksheet
+    Else
+        Set s = ActiveSheet
+    End If
+    If c <= 0 And IsObject(Application.Caller) Then
+        c = Application.Caller.Column
+    End If
+    ColumnWidth = s.Columns(c).Width
+End Function
+
+Public Function RowHeight(Optional r As Integer = 0)
+    Application.Volatile
+    Dim s As Worksheet
+    If IsObject(Application.Caller) Then
+        Set s = Application.Caller.Worksheet
+    Else
+        Set s = ActiveSheet
+    End If
+    If r <= 0 And IsObject(Application.Caller) Then
+        r = Application.Caller.Row
+    End If
+    RowHeight = s.Rows(r).Height
+End Function
+
