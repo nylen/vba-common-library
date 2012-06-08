@@ -7,6 +7,10 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
+' Common VBA Library
+' List
+' This is a dynamic array that expands efficiently.
+
 Private Const LOWER_BOUND = 1
 Private Const RESIZE_FACTOR = 1.75
 
@@ -14,14 +18,17 @@ Private mCount As Integer
 
 Private mItems() As Variant
 
+' Gets the number of items in the list.
 Public Property Get Count() As Integer
     Count = mCount
 End Property
 
+' Returns whether the list contains any items.
 Public Property Get HasItems() As Boolean
     HasItems = (mCount > 0)
 End Property
 
+' Sets the item at the given index to the given value.
 Public Property Let Item(i As Integer, val As Variant)
     CheckIndex i
     If IsObject(val) Then
@@ -31,6 +38,7 @@ Public Property Let Item(i As Integer, val As Variant)
     End If
 End Property
 
+' Gets the item at the given index.
 Public Property Get Item(i As Integer) As Variant
     CheckIndex i
     If IsObject(mItems(i)) Then
@@ -40,6 +48,8 @@ Public Property Get Item(i As Integer) As Variant
     End If
 End Property
 
+' Gets all list items as an array, or Empty if the list does not
+' contain any items.
 Public Property Get Items() As Variant
     If mCount = 0 Then
         Items = Empty
@@ -73,11 +83,13 @@ Private Sub CheckIndex(i As Integer)
     End If
 End Sub
 
+' Removes all items from the list.
 Public Sub Clear()
     ReDim mItems(LOWER_BOUND - 1 To LOWER_BOUND)
     mCount = 0
 End Sub
 
+' Adds a value to the end of the list.
 Public Sub Add(val As Variant)
     Resize mCount + 1
     If IsObject(val) Then
@@ -87,10 +99,13 @@ Public Sub Add(val As Variant)
     End If
 End Sub
 
+' Adds a value to the end of the list, if the list does not already
+' contain that value.
 Public Sub AddOnce(val As Variant)
     If Not Contains(val) Then Add val
 End Sub
 
+' Adds a range of items to the end of the list.
 Public Sub AddRange(val As Variant)
     If Not IsEmpty(val) Then
         Dim v As Variant
@@ -100,6 +115,8 @@ Public Sub AddRange(val As Variant)
     End If
 End Sub
 
+' Adds a range of items to the end of the list, only adding the items
+' that are not already contained in the list.
 Public Sub AddRangeOnce(val As Variant)
     If Not IsEmpty(val) Then
         Dim v As Variant
@@ -109,6 +126,7 @@ Public Sub AddRangeOnce(val As Variant)
     End If
 End Sub
 
+' Determines whether the list contains a given item.
 Public Function Contains(val As Variant) As Boolean
     Contains = False
     Dim i As Integer

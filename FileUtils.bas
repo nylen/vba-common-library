@@ -1,9 +1,16 @@
 Attribute VB_Name = "FileUtils"
+' Common VBA Library
+' FileUtils
+' Provides useful functions for working with filenames and paths.
+
 Option Explicit
 
 Private Declare Function GetTempPathA Lib "kernel32" _
     (ByVal nBufferLength As Long, ByVal lpBuffer As String) As Long
 
+' Determines whether a file with the given name exists.
+' @param findFolders: If true, the function will return true if a folder
+' with the given name exists.
 Public Function FileExists(ByVal testFilename As String, _
     Optional findFolders As Boolean = False) As Boolean
     
@@ -16,22 +23,29 @@ Public Function FileExists(ByVal testFilename As String, _
     End If
     
     'If Dir() returns something, the file exists.
+    FileExists = False
     On Error Resume Next
     FileExists = (Dir(TrimTrailingChars(testFilename, "/\"), attrs) <> "")
 End Function
 
+' Determines whether a folder with the given name exists.
 Public Function FolderExists(folderName As String) As Boolean
     On Error Resume Next
     FolderExists = ((GetAttr(folderName) And vbDirectory) = vbDirectory)
 End Function
 
+' Merges two path components into a single path.
 Public Function CombinePaths(p1 As String, p2 As String) As String
     CombinePaths = _
         TrimTrailingChars(p1, "/\") & "\" & _
         TrimLeadingChars(p2, "/\")
 End Function
 
-Public Function NormalizePath(ByVal p As String)
+' Fixes slashes within a path:
+'  - Converts all forward slashes to backslashes
+'  - Removes multiple consecutive slashes (except for UNC paths)
+'  - Removes any trailing slashes
+Public Function NormalizePath(ByVal p As String) As String
     Dim isUNC As Boolean
     isUNC = StartsWith(p, "\\")
     p = Replace(p, "/", "\")
@@ -42,7 +56,9 @@ Public Function NormalizePath(ByVal p As String)
     NormalizePath = TrimTrailingChars(p, "\")
 End Function
 
-Public Function GetDirectoryName(ByVal p As String)
+' Returns the folder name of a path (removes the last component
+' of the path).
+Public Function GetDirectoryName(ByVal p As String) As String
     p = NormalizePath(p)
     Dim i As Integer
     i = InStrRev(p, "\")
@@ -53,7 +69,8 @@ Public Function GetDirectoryName(ByVal p As String)
     End If
 End Function
 
-Public Function GetFilename(ByVal p As String)
+' Returns the filename of a path (the last component of the path).
+Public Function GetFilename(ByVal p As String) As String
     p = NormalizePath(p)
     Dim i As Integer
     i = InStrRev(p, "\")
@@ -94,16 +111,24 @@ Private Function ListFiles_Internal(filePattern As String, attrs As Long) As Var
     End If
 End Function
 
-Public Function ListFiles(filePattern As String)
+' Lists all files matching the given pattern.
+' @param filePattern: A directory name, or a path with wildcards:
+' C:\Path\to\Folder\ExcelFiles.xl*
+Public Function ListFiles(filePattern As String) As Variant
     ListFiles = ListFiles_Internal(filePattern, _
         vbReadOnly Or vbHidden Or vbSystem)
 End Function
 
-Public Function ListFolders(folderPattern As String)
+' Lists all folders matching the given pattern.
+' @param folderPattern: A directory name, or a path with wildcards:
+' C:\Path\to\Folder\ExcelFiles.xl*
+Public Function ListFolders(folderPattern As String) As Variant
     ListFolders = ListFiles_Internal(folderPattern, _
         vbReadOnly Or vbHidden Or vbSystem Or vbDirectory)
 End Function
 
+' Returns the path to a folder that can be used to store temporary
+' files.
 Public Function GetTempPath() As String
     Const MAX_PATH = 256
     

@@ -1,4 +1,8 @@
 Attribute VB_Name = "ArrayUtils"
+' Common VBA Library
+' ArrayUtils
+' Provides functions for handling arrays that are lacking in the built-in VBA language.
+
 Option Explicit
 
 Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" _
@@ -6,6 +10,9 @@ Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" _
 
 Private Const NORMALIZE_LBOUND = 1
 
+' Returns a single-dimension array with lower bound 1, if given
+' a one dimensional array with any lower bound or a two-dimensional
+' array with one dimension having only one element.
 Public Function NormalizeArray(arr As Variant) As Variant
     If IsEmpty(arr) Then
         NormalizeArray = Empty
@@ -65,8 +72,9 @@ Public Function NormalizeArray(arr As Variant) As Variant
     End Select
 End Function
 
-' from http://www.devx.com/vb2themax/Tip/18265
-Function Rank(arr As Variant) As Integer
+' Returns the rank (number of dimensions) of an array.
+' From http://www.devx.com/vb2themax/Tip/18265 .
+Public Function Rank(arr As Variant) As Integer
     Dim ptr As Long
     Dim vType As Integer
     Const VT_BYREF = &H4000&
@@ -105,7 +113,8 @@ Function Rank(arr As Variant) As Integer
     End If
 End Function
 
-Function ArrayLen(arr As Variant, Optional dimNum As Integer = 1)
+' Returns the number of elements in an array for a given dimension.
+Function ArrayLen(arr As Variant, Optional dimNum As Integer = 1) As Long
     If IsEmpty(arr) Then
         ArrayLen = 0
     Else

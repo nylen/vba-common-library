@@ -1,10 +1,11 @@
 Attribute VB_Name = "StringUtils"
+' Common VBA Library
+' StringUtils
+' Provides useful functions for manipulating strings.
+
 Option Explicit
 
-Public Function NewLine() As String
-    NewLine = vbLf
-End Function
-
+' Determines whether a string starts with a given prefix.
 Public Function StartsWith(s As String, prefix As String, _
     Optional caseSensitive As Boolean = True) As Boolean
     
@@ -15,6 +16,7 @@ Public Function StartsWith(s As String, prefix As String, _
     End If
 End Function
 
+' Determines whether a string ends with a given suffix.
 Public Function EndsWith(s As String, suffix As String, _
     Optional caseSensitive As Boolean = True) As Boolean
     
@@ -25,6 +27,8 @@ Public Function EndsWith(s As String, suffix As String, _
     End If
 End Function
 
+' Splits a string on a given delimiter, trimming trailing and leading
+' whitespace from each piece of the string.
 Public Function SplitTrim(s As String, delim As String) As String()
     Dim arr() As String
     arr = Split(s, delim)
@@ -37,10 +41,20 @@ Public Function SplitTrim(s As String, delim As String) As String()
     SplitTrim = arr
 End Function
 
+' Trims a specified set of characters from the beginning and end
+' of the given string.
+' @param toTrim: The characters to trim.  For example, if ",; "
+' is given, then all spaces, commas, and semicolons will be removed
+' from the beginning and end of the given string.
 Public Function TrimChars(s As String, toTrim As String)
     TrimChars = TrimTrailingChars(TrimLeadingChars(s, toTrim), toTrim)
 End Function
 
+' Trims a specified set of characters from the beginning of the
+' given string.
+' @param toTrim: The characters to trim.  For example, if ",; "
+' is given, then all spaces, commas, and semicolons will be removed
+' from the beginning of the given string.
 Public Function TrimLeadingChars(s As String, toTrim As String)
     If s = "" Then
         TrimLeadingChars = ""
@@ -54,6 +68,11 @@ Public Function TrimLeadingChars(s As String, toTrim As String)
     TrimLeadingChars = Mid(s, i)
 End Function
 
+' Trims a specified set of characters from the end of the given
+' string.
+' @param toTrim: The characters to trim.  For example, if ",; "
+' is given, then all spaces, commas, and semicolons will be removed
+' from the end of the given string.
 Public Function TrimTrailingChars(s As String, toTrim As String)
     If s = "" Then
         TrimTrailingChars = ""
