@@ -150,11 +150,13 @@ End Function
 ' Shows a status message to update the user on the progress of a long-running
 ' operation, in a way that can be detected by external applications.
 Public Sub ShowStatusMessage(statusMessage As String)
+    ' Show the message in the status bar.
     Application.StatusBar = statusMessage
-    ' Set the window title to the updated status message.  The window title
-    ' as seen by the Windows API will then be:
+    
+    ' Set the Excel window title to the updated status message.  The window
+    ' title as seen by the Windows API will then be:
     ' "Status Message - WorkbookFilename.xlsm"
     ' To allow external applications to extract just the status message,
-    ' prefix it with the length of the message.
+    ' put the length of the message at the beginning.
     Application.Caption = Len(statusMessage) & ":" & statusMessage
 End Sub
