@@ -35,6 +35,53 @@ notFound:
     SheetExists = False
 End Function
 
+' Deletes the sheet with the given name, without prompting for confirmation.
+' @param wb: The workbook to check for the given sheet name (defaults to the
+' active workbook).
+Public Sub DeleteSheetByName(sheetName As String, Optional wb As Workbook)
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    If SheetExists(sheetName, wb) Then DeleteSheet wb.Sheets(sheetName)
+End Sub
+
+' Deletes the given worksheet, without prompting for confirmation.
+Public Sub DeleteSheet(s As Worksheet)
+    DeleteSheetOrSheets s
+End Sub
+
+' Deletes all sheets in the given Sheets object, without prompting for
+' confirmation.
+Public Sub DeleteSheets(s As Sheets)
+    DeleteSheetOrSheets s
+End Sub
+
+Private Sub DeleteSheetOrSheets(s As Object)
+    Dim prevDisplayAlerts As Boolean
+    prevDisplayAlerts = Application.DisplayAlerts
+    Application.DisplayAlerts = False
+    On Error Resume Next
+    s.Delete
+    On Error GoTo 0
+    Application.DisplayAlerts = prevDisplayAlerts
+End Sub
+
+' Returns the actual used range from a sheet.
+' @param fromTopLeft: If True, returns the used range starting from cell A1,
+' which is different from the way Excel's UsedRange property behaves if the
+' workbook does not use any cells in the first row or column.
+Public Function GetRealUsedRange(s As Worksheet, _
+    Optional fromTopLeft As Boolean = True) As Range
+    
+    If fromTopLeft Then
+        Set GetRealUsedRange = s.Range( _
+            s.Cells(1, 1), _
+            s.Cells( _
+                s.UsedRange.Rows.Count + s.UsedRange.Row - 1, _
+                s.UsedRange.Columns.Count + s.UsedRange.Column - 1))
+    Else
+        Set GetRealUsedRange = s.UsedRange
+    End If
+End Function
+
 ' Converts an integer column number to an Excel column string.
 Public Function ExcelCol(c As Integer) As String
     ExcelCol = ExcelCol_ZeroBased(c - 1)
