@@ -78,9 +78,9 @@ Public Function GetFilename(ByVal p As String) As String
 End Function
 
 Private Function ListFiles_Internal(filePattern As String, attrs As Long) _
-    As Variant
+    As Variant()
     
-    Dim files As New List
+    Dim filesList As New List
     Dim folderName As String
     
     If FolderExists(filePattern) Then
@@ -98,19 +98,15 @@ Private Function ListFiles_Internal(filePattern As String, attrs As Long) _
             If FolderExists(folderName & currFilename) _
                 And currFilename <> "." And currFilename <> ".." Then
                 
-                files.Add folderName & currFilename
+                filesList.Add folderName & currFilename
             End If
         Else
-            files.Add folderName & currFilename
+            filesList.Add folderName & currFilename
         End If
         currFilename = Dir
     Wend
     
-    If files.HasItems Then
-        ListFiles_Internal = files.Items
-    Else
-        ListFiles_Internal = Empty
-    End If
+    ListFiles_Internal = filesList.Items
 End Function
 
 ' Lists all files matching the given pattern.

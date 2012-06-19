@@ -23,11 +23,6 @@ Public Property Get Count() As Integer
     Count = mCount
 End Property
 
-' Returns whether the list contains any items.
-Public Property Get HasItems() As Boolean
-    HasItems = (mCount > 0)
-End Property
-
 ' Sets the item at the given index to the given value.
 Public Property Let Item(i As Integer, val As Variant)
     CheckIndex i
@@ -50,9 +45,12 @@ End Property
 
 ' Gets all list items as an array, or Empty if the list does not
 ' contain any items.
-Public Property Get Items() As Variant
+Public Property Get Items() As Variant()
     If mCount = 0 Then
-        Items = Empty
+        ' Return an empty array.  This is the only way I know of to create
+        ' an empty array in VBA.  It's kind of wonky because the resulting
+        ' array has LBound = 0 and UBound = -1.
+        Items = Array()
     Else
         Dim arr() As Variant
         ReDim arr(LOWER_BOUND To LOWER_BOUND + mCount - 1)
