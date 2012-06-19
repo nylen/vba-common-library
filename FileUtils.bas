@@ -84,7 +84,7 @@ Private Function ListFiles_Internal(filePattern As String, attrs As Long) _
     Dim folderName As String
     
     If FolderExists(filePattern) Then
-        filePattern = TrimTrailingChars(filePattern, "\/") & "\"
+        filePattern = NormalizePath(filePattern) & "\"
         folderName = filePattern
     Else
         folderName = GetDirectoryName(filePattern) & "\"
@@ -111,16 +111,18 @@ End Function
 
 ' Lists all files matching the given pattern.
 ' @param filePattern: A directory name, or a path with wildcards:
-' C:\Path\to\Folder\ExcelFiles.xl*
-Public Function ListFiles(filePattern As String) As Variant
+'  - C:\Path\to\Folder
+'  - C:\Path\to\Folder\ExcelFiles.xl*
+Public Function ListFiles(filePattern As String) As Variant()
     ListFiles = ListFiles_Internal(filePattern, _
         vbReadOnly Or vbHidden Or vbSystem)
 End Function
 
 ' Lists all folders matching the given pattern.
 ' @param folderPattern: A directory name, or a path with wildcards:
-' C:\Path\to\Folder\ExcelFiles.xl*
-Public Function ListFolders(folderPattern As String) As Variant
+'  - C:\Path\to\Folder
+'  - C:\Path\to\Folder\OtherFolder_*
+Public Function ListFolders(folderPattern As String) As Variant()
     ListFolders = ListFiles_Internal(folderPattern, _
         vbReadOnly Or vbHidden Or vbSystem Or vbDirectory)
 End Function
