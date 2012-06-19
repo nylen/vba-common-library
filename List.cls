@@ -43,7 +43,7 @@ Public Property Get Item(i As Integer) As Variant
     End If
 End Property
 
-' Gets all list items as an array, or Empty if the list does not
+' Gets all list items as an array, or an empty array if the list does not
 ' contain any items.
 Public Property Get Items() As Variant()
     If mCount = 0 Then
@@ -105,23 +105,19 @@ End Sub
 
 ' Adds a range of items to the end of the list.
 Public Sub AddRange(val As Variant)
-    If Not IsEmpty(val) Then
-        Dim v As Variant
-        For Each v In val
-            Add v
-        Next
-    End If
+    Dim v As Variant
+    For Each v In val
+        Add v
+    Next
 End Sub
 
 ' Adds a range of items to the end of the list, only adding the items
 ' that are not already contained in the list.
 Public Sub AddRangeOnce(val As Variant)
-    If Not IsEmpty(val) Then
-        Dim v As Variant
-        For Each v In val
-            AddOnce v
-        Next
-    End If
+    Dim v As Variant
+    For Each v In val
+        AddOnce v
+    Next
 End Sub
 
 ' Determines whether the list contains a given item.

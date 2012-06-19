@@ -15,8 +15,8 @@ Private Const NORMALIZE_LBOUND = 1
 ' a one dimensional array with any lower bound or a two-dimensional
 ' array with one dimension having only one element.
 Public Function NormalizeArray(arr As Variant) As Variant
-    If IsEmpty(arr) Then
-        NormalizeArray = Empty
+    If IsEmpty(arr) Or ArrayLen(arr) = 0 Then
+        NormalizeArray = Array()
         Exit Function
     End If
     
