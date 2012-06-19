@@ -8,7 +8,9 @@ Option Explicit
 ' Determines whether a VBA code module with a given name exists.
 ' @param wb: The workbook to check for the given module name (defaults to the
 ' active workbook).
-Public Function ModuleExists(moduleName As String, Optional wb As Workbook) As Boolean
+Public Function ModuleExists(moduleName As String, Optional wb As Workbook) _
+    As Boolean
+    
     If wb Is Nothing Then Set wb = ActiveWorkbook
     Dim c As Variant ' VBComponent
     
@@ -38,7 +40,9 @@ End Sub
 ' Exports a VBA code module to a text file.
 ' @param wb: The workbook that contains the module to export (defaults to the
 ' active workbook).
-Public Sub ExportModule(moduleName As String, filename As String, Optional wb As Workbook)
+Public Sub ExportModule(moduleName As String, filename As String, _
+    Optional wb As Workbook)
+    
     If wb Is Nothing Then Set wb = ActiveWorkbook
     If Not ModuleExists(moduleName, wb) Then
         Err.Raise 32000, _
@@ -48,8 +52,8 @@ Public Sub ExportModule(moduleName As String, filename As String, Optional wb As
 End Sub
 
 ' Imports a VBA code module from a text file.
-' @param wb: The workbook that will receive the imported module (defaults to the
-' active workbook).
+' @param wb: The workbook that will receive the imported module (defaults to
+' the active workbook).
 Public Sub ImportModule(filename As String, Optional wb As Workbook)
     If wb Is Nothing Then Set wb = ActiveWorkbook
     wb.VBProject.VBComponents.Import filename

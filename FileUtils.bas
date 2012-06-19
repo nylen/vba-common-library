@@ -77,7 +77,9 @@ Public Function GetFilename(ByVal p As String) As String
     GetFilename = Mid(p, i + 1)
 End Function
 
-Private Function ListFiles_Internal(filePattern As String, attrs As Long) As Variant
+Private Function ListFiles_Internal(filePattern As String, attrs As Long) _
+    As Variant
+    
     Dim files As New List
     Dim folderName As String
     

@@ -22,7 +22,9 @@ End Function
 ' Determines whether a sheet with a given name exists.
 ' @param wb: The workbook to check for the given sheet name (defaults to the
 ' active workbook).
-Public Function SheetExists(sheetName As String, Optional wb As Workbook) As Boolean
+Public Function SheetExists(sheetName As String, Optional wb As Workbook) _
+    As Boolean
+    
     If wb Is Nothing Then Set wb = ActiveWorkbook
     Dim s As Worksheet
     
@@ -108,11 +110,14 @@ Public Function ExcelColNum(c As String) As Integer
 End Function
 
 ' Builds an Excel cell reference.
-Public Function CellReference(ByVal r As Long, ByVal c As Integer, Optional sheet As String = "", _
-    Optional absoluteRow As Boolean = False, Optional absoluteCol As Boolean = False) As String
+Public Function CellReference(ByVal r As Long, ByVal c As Integer, _
+    Optional sheet As String = "", Optional absoluteRow As Boolean = False, _
+    Optional absoluteCol As Boolean = False) As String
     
     Dim ref As String
-    ref = IIf(absoluteCol, "$", "") & ExcelCol(c) & IIf(absoluteRow, "$", "") & r
+    ref = IIf(absoluteCol, "$", "") & ExcelCol(c) _
+        & IIf(absoluteRow, "$", "") & r
+    
     If sheet = "" Then
         CellReference = ref
     Else

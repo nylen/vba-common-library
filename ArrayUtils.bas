@@ -1,7 +1,8 @@
 Attribute VB_Name = "ArrayUtils"
 ' Common VBA Library
 ' ArrayUtils
-' Provides functions for handling arrays that are lacking in the built-in VBA language.
+' Provides functions for handling arrays that are lacking in the built-in VBA
+' language.
 
 Option Explicit
 
