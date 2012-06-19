@@ -143,7 +143,7 @@ Public Function GetTempPath() As String
     If ret <> 0 Then
         GetTempPath = Left(folderName, InStr(folderName, Chr(0)) - 1)
     Else
-        Err.Raise 32000, _
-            Description:="Error getting temporary folder."
+        Err.Raise 32000, Description:= _
+            "Error getting temporary folder."
     End If
 End Function

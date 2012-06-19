@@ -62,14 +62,14 @@ Public Function NormalizeArray(arr As Variant) As Variant
                 NormalizeArray = arr2
                 
             Else
-                Err.Raise 32000, _
-                    Description:="Can only normalize a 2-dimensional array " _
-                        & "if one of the dimensions contains only one element."
+                Err.Raise 32000, Description:= _
+                    "Can only normalize a 2-dimensional array if one of " _
+                        & "the dimensions contains only one element."
             End If
             
         Case Else
-            Err.Raise 32000, _
-                Description:="Can only normalize 1- and 2-dimensional arrays."
+            Err.Raise 32000, Description:= _
+                "Can only normalize 1- and 2-dimensional arrays."
     End Select
 End Function
 

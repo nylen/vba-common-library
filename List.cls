@@ -73,13 +73,13 @@ End Property
 
 Private Sub CheckIndex(i As Integer)
     If i < LOWER_BOUND Then
-        Err.Raise 32000, _
-            Description:="List item index is less than lower bound"
+        Err.Raise 32000, Description:= _
+            "List item index is less than lower bound."
     End If
     
     If i > mCount Then
-        Err.Raise 32000, _
-            Description:="List item index is greater than upper bound"
+        Err.Raise 32000, Description:= _
+            "List item index is greater than upper bound."
     End If
 End Sub
 

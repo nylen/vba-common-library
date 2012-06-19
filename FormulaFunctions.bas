@@ -53,9 +53,9 @@ Public Function RangeArray(arr As Variant) As Variant
                 len1 = ArrayLen(arr)
                 len2 = ArrayLen(arr, 2)
             Case Else
-                Err.Raise 32000, _
-                    Description:="Invalid number of dimensions (" _
-                        & Rank(arr) & "; expected 1 or 2)."
+                Err.Raise 32000, Description:= _
+                    "Invalid number of dimensions (" & Rank(arr) _
+                        & "; expected 1 or 2)."
         End Select
         
         If Application.Caller.Rows.Count > Application.Caller.Columns.Count _

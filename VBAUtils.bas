@@ -29,8 +29,8 @@ End Function
 Public Sub RemoveModule(moduleName As String, Optional wb As Workbook)
     If wb Is Nothing Then Set wb = ActiveWorkbook
     If Not ModuleExists(moduleName, wb) Then
-        Err.Raise 32000, _
-            Description:="Module '" & moduleName & "' not found."
+        Err.Raise 32000, Description:= _
+            "Module '" & moduleName & "' not found."
     End If
     Dim c As Variant ' VBComponent
     Set c = wb.VBProject.VBComponents.Item(moduleName)
@@ -45,8 +45,8 @@ Public Sub ExportModule(moduleName As String, filename As String, _
     
     If wb Is Nothing Then Set wb = ActiveWorkbook
     If Not ModuleExists(moduleName, wb) Then
-        Err.Raise 32000, _
-            Description:="Module '" & moduleName & "' not found."
+        Err.Raise 32000, Description:= _
+            "Module '" & moduleName & "' not found."
     End If
     wb.VBProject.VBComponents.Item(moduleName).Export filename
 End Sub
