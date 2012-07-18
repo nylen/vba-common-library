@@ -2,6 +2,8 @@ Attribute VB_Name = "VBAUtils"
 ' Common VBA Library
 ' VBAUtils
 ' Provides useful functions for manipulating the VBA project object model.
+' @reference Microsoft Visual Basic for Applications Extensibility 5.3
+' (C:\Program Files\Common Files\Microsoft Shared\vba\VBA6\VBE6.DLL)
 
 Option Explicit
 
@@ -54,7 +56,7 @@ End Sub
 ' Imports a VBA code module from a text file.
 ' @param wb: The workbook that will receive the imported module (defaults to
 ' the active workbook).
-Public Sub ImportModule(filename As String, Optional wb As Workbook)
+Public Function ImportModule(filename As String, Optional wb As Workbook) As VBComponent
     If wb Is Nothing Then Set wb = ActiveWorkbook
     wb.VBProject.VBComponents.Import filename
-End Sub
+End Function
