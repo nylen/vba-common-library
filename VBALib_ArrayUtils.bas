@@ -11,11 +11,12 @@ Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" _
 
 Private Const NORMALIZE_LBOUND = 1
 
-' Returns a single-dimension array with lower bound 1, if given
-' a one dimensional array with any lower bound or a two-dimensional
-' array with one dimension having only one element.
+' Returns a single-dimension array with lower bound 1, if given a
+' one-dimensional array with any lower bound or a two-dimensional array with
+' with one dimension having only one element.  This function will always
+' return a copy of the given array.
 Public Function NormalizeArray(arr As Variant) As Variant
-    If IsEmpty(arr) Or ArrayLen(arr) = 0 Then
+    If ArrayLen(arr) = 0 Then
         NormalizeArray = Array()
         Exit Function
     End If
@@ -115,10 +116,88 @@ Public Function Rank(arr As Variant) As Integer
 End Function
 
 ' Returns the number of elements in an array for a given dimension.
-Function ArrayLen(arr As Variant, Optional dimNum As Integer = 1) As Long
+Public Function ArrayLen(arr As Variant, _
+    Optional dimNum As Integer = 1) As Long
+    
     If IsEmpty(arr) Then
         ArrayLen = 0
     Else
         ArrayLen = UBound(arr, dimNum) - LBound(arr, dimNum) + 1
+    End If
+End Function
+
+' Sorts a section of an array in place.  Code from:
+' http://stackoverflow.com/questions/152319/vba-array-sort-function
+Private Sub QuickSort(vArray() As Variant, inLow As Long, inHi As Long)
+    Dim pivot   As Variant
+    Dim tmpSwap As Variant
+    Dim tmpLow  As Long
+    Dim tmpHi   As Long
+    
+    tmpLow = inLow
+    tmpHi = inHi
+    
+    pivot = vArray((inLow + inHi) \ 2)
+    
+    While (tmpLow <= tmpHi)
+        
+        While (vArray(tmpLow) < pivot And tmpLow < inHi)
+            tmpLow = tmpLow + 1
+        Wend
+        
+        While (pivot < vArray(tmpHi) And tmpHi > inLow)
+            tmpHi = tmpHi - 1
+        Wend
+        
+        If (tmpLow <= tmpHi) Then
+            tmpSwap = vArray(tmpLow)
+            vArray(tmpLow) = vArray(tmpHi)
+            vArray(tmpHi) = tmpSwap
+            tmpLow = tmpLow + 1
+            tmpHi = tmpHi - 1
+        End If
+        
+    Wend
+    
+    If (inLow < tmpHi) Then QuickSort vArray, inLow, tmpHi
+    If (tmpLow < inHi) Then QuickSort vArray, tmpLow, inHi
+End Sub
+
+' Sorts the given single-dimension array in place.
+Public Sub SortArrayInPlace(arr() As Variant)
+    QuickSort arr, LBound(arr), UBound(arr)
+End Sub
+
+' Returns a sorted copy of the given array.
+Public Function SortArray(arr() As Variant) As Variant()
+    If ArrayLen(arr) = 0 Then
+        SortArray = Array()
+    Else
+        Dim arr2() As Variant
+        arr2 = arr
+        SortArrayInPlace arr2
+        SortArray = arr2
+    End If
+End Function
+
+' Returns an array containing each unique item in the given array only once.
+Public Function GetUniqueItems(arr() As Variant) As Variant()
+    If ArrayLen(arr) = 0 Then
+        GetUniqueItems = Array()
+    Else
+        Dim arrSorted() As Variant
+        arrSorted = SortArray(arr)
+        
+        Dim uniqueItemsList As New VBALib_List
+        uniqueItemsList.Add arrSorted(LBound(arrSorted))
+        
+        Dim i As Long
+        For i = LBound(arrSorted) + 1 To UBound(arrSorted)
+            If arrSorted(i) <> arrSorted(i - 1) Then
+                uniqueItemsList.Add arrSorted(i)
+            End If
+        Next
+        
+        GetUniqueItems = uniqueItemsList.Items
     End If
 End Function
