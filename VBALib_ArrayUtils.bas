@@ -1,5 +1,5 @@
 Attribute VB_Name = "VBALib_ArrayUtils"
-' Common VBA Library
+' Common VBA Library, version 2012-10-03.1
 ' ArrayUtils
 ' Provides functions for handling arrays that are lacking in the built-in VBA
 ' language.

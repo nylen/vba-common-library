@@ -1,5 +1,5 @@
 Attribute VB_Name = "VBALib_VBAUtils"
-' Common VBA Library
+' Common VBA Library, version 2012-10-03.1
 ' VBAUtils
 ' Provides useful functions for manipulating the VBA project object model.
 ' @reference Microsoft Visual Basic for Applications Extensibility 5.3
