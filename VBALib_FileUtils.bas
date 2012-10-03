@@ -80,7 +80,7 @@ End Function
 Private Function ListFiles_Internal(filePattern As String, attrs As Long) _
     As Variant()
     
-    Dim filesList As New List
+    Dim filesList As New VBALib_List
     Dim folderName As String
     
     If FolderExists(filePattern) Then

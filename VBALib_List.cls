@@ -8,7 +8,7 @@ Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
 ' Common VBA Library
-' List
+' VBALib_List
 ' This is a dynamic array that expands efficiently.
 
 Private Const LOWER_BOUND = 1
@@ -72,12 +72,12 @@ End Property
 Private Sub CheckIndex(i As Integer)
     If i < LOWER_BOUND Then
         Err.Raise 32000, Description:= _
-            "List item index is less than lower bound."
+            "VBALib_List item index is less than lower bound."
     End If
     
     If i > mCount Then
         Err.Raise 32000, Description:= _
-            "List item index is greater than upper bound."
+            "VBALib_List item index is greater than upper bound."
     End If
 End Sub
 
