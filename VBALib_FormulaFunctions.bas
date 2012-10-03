@@ -31,6 +31,12 @@ Public Function StringSplit(s As String, delim As String, _
     StringSplit = Split(s, delim, limit)
 End Function
 
+' Joins an array into a string by inserting the given delimiter in between
+' items.
+Public Function StringJoin(arr() As Variant, delim As String) As String
+    StringJoin = Join(arr, delim)
+End Function
+
 ' Returns a newline (vbLf) character for use in formulas.
 Public Function NewLine() As String
     NewLine = vbLf
@@ -39,12 +45,12 @@ End Function
 ' Returns an array suitable for using in an array formula.  When this
 ' function is called from an array formula, it will detect whether or
 ' not the array should be transposed to fit into the range.
-Public Function RangeArray(arr As Variant) As Variant
+Public Function GetArrayForFormula(arr As Variant) As Variant
     If IsObject(Application.Caller) Then
         Dim len1 As Long, len2 As Long
         Select Case Rank(arr)
             Case 0
-                RangeArray = Empty
+                GetArrayForFormula = Empty
                 Exit Function
             Case 1
                 len1 = ArrayLen(arr)
@@ -61,12 +67,21 @@ Public Function RangeArray(arr As Variant) As Variant
         If Application.Caller.Rows.Count > Application.Caller.Columns.Count _
             And len1 > len2 Then
             
-            RangeArray = WorksheetFunction.Transpose(arr)
+            GetArrayForFormula = WorksheetFunction.Transpose(arr)
         Else
-            RangeArray = arr
+            GetArrayForFormula = arr
         End If
     Else
-        RangeArray = arr
+        GetArrayForFormula = arr
+    End If
+End Function
+
+' Converts a range to a normalized array.
+Public Function RangeToArray(r As Range) As Variant()
+    If r.Cells.Count = 1 Then
+        RangeToArray = Array(r.Value)
+    Else
+        RangeToArray = NormalizeArray(r.Value)
     End If
 End Function
 
