@@ -5,6 +5,15 @@ Attribute VB_Name = "VBALib_ExcelUtils"
 
 Option Explicit
 
+Private Declare Function CallNamedPipe Lib "kernel32" _
+    Alias "CallNamedPipeA" ( _
+        ByVal lpNamedPipeName As String, _
+        ByVal lpInBuffer As Any, ByVal nInBufferSize As Long, _
+        ByRef lpOutBuffer As Any, ByVal nOutBufferSize As Long, _
+        ByRef lpBytesRead As Long, ByVal nTimeOut As Long) As Long
+
+Private Declare Function GetCurrentProcessId Lib "kernel32" () As Long
+
 ' Determines whether a given workbook has been opened.  Pass this function
 ' a filename only, not a full path.
 Public Function IsWorkbookOpen(wbFilename As String) As Boolean
@@ -164,4 +173,20 @@ Public Sub ShowStatusMessage(statusMessage As String)
     ' To allow external applications to extract just the status message,
     ' put the length of the message at the beginning.
     Application.Caption = Len(statusMessage) & ":" & statusMessage
+End Sub
+
+' Clears any status message that is currently being displayed by a macro.
+Public Sub ClearStatusMessage()
+    Application.StatusBar = False
+    Application.Caption = Empty
+End Sub
+
+' Attempts to send a message to an external program that is running this macro
+' and listening for messages.
+Public Sub SendMessageToListener(msg As String)
+    Dim bArray(0 To 0) As Byte
+    Dim bytesRead As Long
+    CallNamedPipe _
+        "\\.\pipe\ExcelMacroCommunicationListener." & GetCurrentProcessId, _
+        msg, Len(msg), bArray(0), 1, bytesRead, 500
 End Sub
