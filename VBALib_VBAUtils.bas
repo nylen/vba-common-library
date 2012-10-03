@@ -1,4 +1,4 @@
-Attribute VB_Name = "VBAUtils"
+Attribute VB_Name = "VBALib_VBAUtils"
 ' Common VBA Library
 ' VBAUtils
 ' Provides useful functions for manipulating the VBA project object model.

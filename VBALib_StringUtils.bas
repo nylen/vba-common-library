@@ -1,4 +1,4 @@
-Attribute VB_Name = "StringUtils"
+Attribute VB_Name = "VBALib_StringUtils"
 ' Common VBA Library
 ' StringUtils
 ' Provides useful functions for manipulating strings.
