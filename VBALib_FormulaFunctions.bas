@@ -80,8 +80,10 @@ End Function
 Public Function RangeToArray(r As Range) As Variant()
     If r.Cells.Count = 1 Then
         RangeToArray = Array(r.Value)
-    Else
+    ElseIf r.Rows.Count = 1 Or r.Columns.Count = 1 Then
         RangeToArray = NormalizeArray(r.Value)
+    Else
+        RangeToArray = r.Value
     End If
 End Function
 
