@@ -121,3 +121,13 @@ Public Function RowHeight(Optional r As Integer = 0) As Variant
     RowHeight = s.Rows(r).Height
 End Function
 
+' Returns the formula of the given cell or range, optionally in R1C1 style.
+Public Function GetFormula(r As Range, Optional r1c1 As Boolean = False) _
+    As Variant
+    
+    If r1c1 Then
+        GetFormula = r.FormulaR1C1
+    Else
+        GetFormula = r.Formula
+    End If
+End Function
