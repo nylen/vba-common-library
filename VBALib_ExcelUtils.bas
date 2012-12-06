@@ -14,6 +14,13 @@ Private Declare Function CallNamedPipe Lib "kernel32" _
 
 Private Declare Function GetCurrentProcessId Lib "kernel32" () As Long
 
+Public Enum Corner
+    cnrTopLeft
+    cnrTopRight
+    cnrBottomLeft
+    cnrBottomRight
+End Enum
+
 ' Determines whether a given workbook has been opened.  Pass this function
 ' a filename only, not a full path.
 Public Function IsWorkbookOpen(wbFilename As String) As Boolean
@@ -190,3 +197,17 @@ Public Sub SendMessageToListener(msg As String)
         "\\.\pipe\ExcelMacroCommunicationListener." & GetCurrentProcessId, _
         msg, Len(msg), bArray(0), 1, bytesRead, 500
 End Sub
+
+' Returns the cell in the given corner of the given range.
+Public Function GetCornerCell(r As Range, c As Corner) As Range
+    Select Case c
+        Case cnrTopLeft
+            Set GetCornerCell = r.Cells(1, 1)
+        Case cnrTopRight
+            Set GetCornerCell = r.Cells(1, r.Columns.Count)
+        Case cnrBottomLeft
+            Set GetCornerCell = r.Cells(r.Rows.Count, 1)
+        Case cnrBottomRight
+            Set GetCornerCell = r.Cells(r.Rows.Count, r.Columns.Count)
+    End Select
+End Function
