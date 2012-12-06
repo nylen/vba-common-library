@@ -58,5 +58,5 @@ End Sub
 ' the active workbook).
 Public Function ImportModule(filename As String, Optional wb As Workbook) As VBComponent
     If wb Is Nothing Then Set wb = ActiveWorkbook
-    wb.VBProject.VBComponents.Import filename
+    Set ImportModule = wb.VBProject.VBComponents.Import(filename)
 End Function
