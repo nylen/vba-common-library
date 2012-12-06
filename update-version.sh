@@ -2,7 +2,7 @@
 
 point="$1"
 
-[ -z "$point" ] && echo "Usage: $0 point-version-numer" && exit
+[ -z "$point" ] && echo "Usage: $0 point-version-number" && exit
 
 cd "$(dirname "$0")"
 
