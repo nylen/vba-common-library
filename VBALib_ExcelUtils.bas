@@ -137,7 +137,7 @@ Public Function CellReference(ByVal r As Long, ByVal c As Integer, _
     If sheet = "" Then
         CellReference = ref
     Else
-        CellReference = "'" & sheet & "'!" & ref
+        CellReference = "'" & Replace(sheet, "'", "''") & "'!" & ref
     End If
 End Function
 
