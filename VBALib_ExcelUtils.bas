@@ -1,5 +1,5 @@
 Attribute VB_Name = "VBALib_ExcelUtils"
-' Common VBA Library, version 2012-10-03.1
+' Common VBA Library, version 2012-12-06.1
 ' ExcelUtils
 ' Provides useful functions for working with the Excel object model.
 

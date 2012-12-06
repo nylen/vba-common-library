@@ -1,5 +1,5 @@
 Attribute VB_Name = "VBALib_FileUtils"
-' Common VBA Library, version 2012-10-03.1
+' Common VBA Library, version 2012-12-06.1
 ' FileUtils
 ' Provides useful functions for working with filenames and paths.
 
