@@ -26,7 +26,7 @@ Public Function NormalizeArray(arr As Variant) As Variant
     Dim nItems As Long
     Dim i As Long
     
-    Select Case Rank(arr)
+    Select Case ArrayRank(arr)
         Case 1
             If LBound(arr) = NORMALIZE_LBOUND Then
                 NormalizeArray = arr
@@ -76,7 +76,7 @@ End Function
 
 ' Returns the rank (number of dimensions) of an array.
 ' From http://www.devx.com/vb2themax/Tip/18265 .
-Public Function Rank(arr As Variant) As Integer
+Public Function ArrayRank(arr As Variant) As Integer
     Dim ptr As Long
     Dim vType As Integer
     Const VT_BYREF = &H4000&
@@ -111,7 +111,7 @@ Public Function Rank(arr As Variant) As Integer
     ' (Thanks to VB2TheMax aficionado Thomas Eyde for
     ' suggesting this edit to the original routine.)
     If ptr Then
-        CopyMemory Rank, ByVal ptr, 2
+        CopyMemory ArrayRank, ByVal ptr, 2
     End If
 End Function
 

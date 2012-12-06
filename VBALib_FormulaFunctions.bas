@@ -48,7 +48,7 @@ End Function
 Public Function GetArrayForFormula(arr As Variant) As Variant
     If IsObject(Application.Caller) Then
         Dim len1 As Long, len2 As Long
-        Select Case Rank(arr)
+        Select Case ArrayRank(arr)
             Case 0
                 GetArrayForFormula = Empty
                 Exit Function
@@ -60,7 +60,7 @@ Public Function GetArrayForFormula(arr As Variant) As Variant
                 len2 = ArrayLen(arr, 2)
             Case Else
                 Err.Raise 32000, Description:= _
-                    "Invalid number of dimensions (" & Rank(arr) _
+                    "Invalid number of dimensions (" & ArrayRank(arr) _
                         & "; expected 1 or 2)."
         End Select
         
