@@ -1,5 +1,5 @@
 Attribute VB_Name = "VBALib_FileUtils"
-' Common VBA Library, version 2012-12-06.1
+' Common VBA Library, version 2013-03-06.1
 ' FileUtils
 ' Provides useful functions for working with filenames and paths.
 
@@ -33,6 +33,32 @@ Public Function FolderExists(folderName As String) As Boolean
     On Error Resume Next
     FolderExists = ((GetAttr(folderName) And vbDirectory) = vbDirectory)
 End Function
+
+' Creates the given directory, including any missing parent folders.
+Public Sub MkDirRecursive(folderName As String)
+    MkDirRecursiveInternal folderName, folderName
+End Sub
+
+Private Sub MkDirRecursiveInternal(folderName As String, _
+    originalFolderName As String)
+    
+    If folderName = "" Then
+        ' Too many recursive calls to this function (GetDirectoryName will
+        ' eventually return an empty string)
+        Err.Raise 32000, _
+            Description:="Failed to create folder: " & originalFolderName
+    End If
+    
+    Dim parentFolderName As String
+    parentFolderName = GetDirectoryName(folderName)
+    If Not FolderExists(parentFolderName) Then
+        MkDirRecursiveInternal parentFolderName, originalFolderName
+    End If
+    
+    If Not FolderExists(folderName) Then
+        MkDir folderName
+    End If
+End Sub
 
 ' Merges two path components into a single path.
 Public Function CombinePaths(p1 As String, p2 As String) As String

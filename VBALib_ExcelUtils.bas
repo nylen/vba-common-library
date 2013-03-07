@@ -1,5 +1,5 @@
 Attribute VB_Name = "VBALib_ExcelUtils"
-' Common VBA Library, version 2012-12-06.1
+' Common VBA Library, version 2013-03-06.1
 ' ExcelUtils
 ' Provides useful functions for working with the Excel object model.
 
@@ -35,7 +35,7 @@ notOpen:
     IsWorkbookOpen = False
 End Function
 
-' Determines whether a sheet with a given name exists.
+' Determines whether a sheet with the given name exists.
 ' @param wb: The workbook to check for the given sheet name (defaults to the
 ' active workbook).
 Public Function SheetExists(sheetName As String, Optional wb As Workbook) _
@@ -51,6 +51,38 @@ Public Function SheetExists(sheetName As String, Optional wb As Workbook) _
     
 notFound:
     SheetExists = False
+End Function
+
+' Determines whether a chart with the given name exists.
+' @param chartName: The name of the chart to check for.
+' @param sheetName: The name of the worksheet that contains the given chart
+' (optional; the default is to search all worksheets).
+' @param wb: The workbook to check for the given chart name (defaults to the
+' active workbook.
+Public Function ChartExists(chartName As String, _
+    Optional sheetName As String = "", Optional wb As Workbook) As Boolean
+    
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    
+    Dim s As Worksheet
+    Dim c As ChartObject
+    
+    ChartExists = False
+    
+    If sheetName = "" Then
+        For Each s In wb.Sheets
+            If ChartExists(chartName, s.Name, wb) Then
+                ChartExists = True
+                Exit Function
+            End If
+        Next
+    Else
+        Set s = wb.Sheets(sheetName)
+        On Error GoTo notFound
+        Set c = s.ChartObjects(chartName)
+        ChartExists = True
+notFound:
+    End If
 End Function
 
 ' Deletes the sheet with the given name, without prompting for confirmation.
