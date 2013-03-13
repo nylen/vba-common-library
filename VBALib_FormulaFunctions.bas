@@ -1,6 +1,5 @@
 Attribute VB_Name = "VBALib_FormulaFunctions"
-' Common VBA Library, version 2013-03-06.1
-' FormulaFunctions
+' Common VBA Library - FormulaFunctions
 ' Provides functions that are useful in Excel formulas.
 
 Option Explicit

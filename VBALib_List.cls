@@ -7,8 +7,7 @@ Attribute VB_GlobalNameSpace = False
 Attribute VB_Creatable = False
 Attribute VB_PredeclaredId = False
 Attribute VB_Exposed = False
-' Common VBA Library, version 2013-03-06.1
-' VBALib_List
+' Common VBA Library - VBALib_List
 ' This is a dynamic array that expands efficiently.
 
 Private Const LOWER_BOUND = 1
