@@ -242,3 +242,93 @@ Public Function GetCornerCell(r As Range, c As Corner) As Range
             Set GetCornerCell = r.Cells(r.Rows.Count, r.Columns.Count)
     End Select
 End Function
+
+' Returns an array of objects representing the other Excel workbooks that the
+' given workbook links to.
+' @param wb: The source workbook (defaults to the active workbook).
+Public Function GetAllExcelLinks(Optional wb As Workbook) As Variant
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    
+    Dim linkNames() As Variant
+    linkNames = NormalizeArray(ActiveWorkbook.LinkSources(xlExcelLinks))
+    
+    If ArrayLen(linkNames) Then
+        Dim linksArr() As VBALib_ExcelLink
+        ReDim linksArr(1 To ArrayLen(linkNames))
+        Dim i As Integer
+        For i = 1 To UBound(linkNames)
+            Set linksArr(i) = New VBALib_ExcelLink
+            linksArr(i).Initialize wb, CStr(linkNames(i))
+        Next
+        GetAllExcelLinks = linksArr
+    Else
+        GetAllExcelLinks = Array()
+        Exit Function
+    End If
+End Function
+
+Private Function GetMatchingLinkName(linkFilename As String, _
+    Optional wb As Workbook) As String
+    
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    
+    Dim linkNames() As Variant
+    linkNames = NormalizeArray(ActiveWorkbook.LinkSources(xlExcelLinks))
+    
+    Dim i As Integer, matchingLinkName As String
+    
+    ' First look for a link with the exact full path given by linkFilename
+    For i = 1 To UBound(linkNames)
+        If LCase(linkNames(i)) = LCase(linkFilename) Then
+            GetMatchingLinkName = linkNames(i)
+            Exit Function
+        End If
+    Next
+    
+    ' Next look for a link with the same filename as linkFilename.  Do it in
+    ' two steps because it is actually possible for Excel to link to two
+    ' workbooks with the same name in different folders.  No one should ever
+    ' do this, but we'll try to support retrieving such links anyway.
+    For i = 1 To UBound(linkNames)
+        If LCase(GetFilename(linkNames(i))) = _
+            LCase(GetFilename(linkFilename)) Then
+            
+            GetMatchingLinkName = linkNames(i)
+            Exit Function
+        End If
+    Next
+    
+    GetMatchingLinkName = ""
+End Function
+
+' Returns an object representing the link to the Excel workbook with the given
+' filename.
+' @param linkFilename: The path or filename of the linked Excel workbook.
+' @param wb: The workbook that contains the link (defaults to the active
+' workbook).
+Public Function GetExcelLink(linkFilename As String, Optional wb As Workbook) _
+    As VBALib_ExcelLink
+    
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    
+    Dim matchingLinkName As String
+    matchingLinkName = GetMatchingLinkName(linkFilename, wb)
+    
+    If matchingLinkName = "" Then
+        Err.Raise 32000, Description:= _
+            "No Excel link exists with the given name ('" & linkFilename _
+                & "')."
+    Else
+        Set GetExcelLink = New VBALib_ExcelLink
+        GetExcelLink.Initialize wb, matchingLinkName
+    End If
+End Function
+
+' Returns whether an Excel link matching the given workbook filename exists.
+' @param wb: The workbook that contains the link (defaults to the active
+' workbook).
+Public Function ExcelLinkExists(linkFilename As String, _
+    Optional wb As Workbook) As Boolean
+    
+    ExcelLinkExists = (GetMatchingLinkName(linkFilename, wb) <> "")
+End Function
