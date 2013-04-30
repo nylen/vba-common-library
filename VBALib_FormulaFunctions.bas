@@ -10,15 +10,35 @@ Public Function ArrayElement(arr As Variant, i1 As Variant, _
     Optional i4 As Variant, Optional i5 As Variant) As Variant
     
     If IsMissing(i2) Then
-        ArrayElement = arr(i1)
+        If IsObject(arr(i1)) Then
+            Set ArrayElement = arr(i1)
+        Else
+            ArrayElement = arr(i1)
+        End If
     ElseIf IsMissing(i3) Then
-        ArrayElement = arr(i1, i2)
+        If IsObject(arr(i1, i2)) Then
+            Set ArrayElement = arr(i1, i2)
+        Else
+            ArrayElement = arr(i1, i2)
+        End If
     ElseIf IsMissing(i4) Then
-        ArrayElement = arr(i1, i2, i3)
+        If IsObject(arr(i1, i2, i3)) Then
+            Set ArrayElement = arr(i1, i2, i3)
+        Else
+            ArrayElement = arr(i1, i2, i3)
+        End If
     ElseIf IsMissing(i5) Then
-        ArrayElement = arr(i1, i2, i3, i4)
+        If IsObject(arr(i1, i2, i3, i4)) Then
+            Set ArrayElement = arr(i1, i2, i3, i4)
+        Else
+            ArrayElement = arr(i1, i2, i3, i4)
+        End If
     Else
-        ArrayElement = arr(i1, i2, i3, i4, i5)
+        If IsObject(arr(i1, i2, i3, i4, i5)) Then
+            Set ArrayElement = arr(i1, i2, i3, i4, i5)
+        Else
+            ArrayElement = arr(i1, i2, i3, i4, i5)
+        End If
     End If
 End Function
 
