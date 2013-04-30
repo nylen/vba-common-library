@@ -116,7 +116,7 @@ End Sub
 ' Returns the actual used range from a sheet.
 ' @param fromTopLeft: If True, returns the used range starting from cell A1,
 ' which is different from the way Excel's UsedRange property behaves if the
-' workbook does not use any cells in the first row or column.
+' sheet does not use any cells in the top row(s) and/or leftmost column(s).
 Public Function GetRealUsedRange(s As Worksheet, _
     Optional fromTopLeft As Boolean = True) As Range
     

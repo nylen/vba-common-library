@@ -12,8 +12,8 @@ Private Const NORMALIZE_LBOUND = 1
 
 ' Returns a single-dimension array with lower bound 1, if given a
 ' one-dimensional array with any lower bound or a two-dimensional array with
-' with one dimension having only one element.  This function will always
-' return a copy of the given array.
+' one dimension having only one element.  This function will always return a
+' copy of the given array.
 Public Function NormalizeArray(arr As Variant) As Variant
     If ArrayLen(arr) = 0 Then
         NormalizeArray = Array()
