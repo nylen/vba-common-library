@@ -10,6 +10,8 @@ Attribute VB_Exposed = False
 ' Common VBA Library - VBALib_List
 ' This is a dynamic array that expands efficiently.
 
+Option Explicit
+
 Private Const LOWER_BOUND = 1
 Private Const RESIZE_FACTOR = 1.75
 
