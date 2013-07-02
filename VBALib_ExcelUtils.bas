@@ -131,6 +131,17 @@ Public Function GetRealUsedRange(s As Worksheet, _
     End If
 End Function
 
+' Sets the value of the given range if it is different than the proposed value.
+' Returns whether the value of the range was changed.
+Public Function SetValueIfNeeded(rng As Range, val As Variant) As Boolean
+    If rng.Value = val Then
+        SetValueIfNeeded = False
+    Else
+        rng.Value = val
+        SetValueIfNeeded = True
+    End If
+End Function
+
 ' Converts an integer column number to an Excel column string.
 Public Function ExcelCol(c As Integer) As String
     ExcelCol = ExcelCol_ZeroBased(c - 1)
