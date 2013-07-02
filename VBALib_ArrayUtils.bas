@@ -200,3 +200,62 @@ Public Function GetUniqueItems(arr() As Variant) As Variant()
         GetUniqueItems = uniqueItemsList.Items
     End If
 End Function
+
+' Returns the subset of the given one- or two-dimensional array specified by
+' the given bounds.  The returned array will have lower bounds of 1.
+' @param arr: The array to process.
+' @param r1: The index of the first element to be extracted from the first
+' dimension of the array.  If not given, defaults to the lower bound of the
+' first dimension.
+' @param r2: The index of the last element to be extracted from the first
+' dimension of the array.  If not given, defaults to the upper bound of the
+' first dimension.
+' @param c1: The index of the first element to be extracted from the second
+' dimension of the array.  If not given, defaults to the lower bound of the
+' second dimension.
+' @param c2: The index of the last element to be extracted from the second
+' dimension of the array.  If not given, defaults to the upper bound of the
+' second dimension.
+Public Function ArraySubset(arr() As Variant, _
+    Optional r1 As Long = -1, Optional r2 As Long = -1, _
+    Optional c1 As Long = -1, Optional c2 As Long = -1) As Variant()
+    
+    Dim arr2() As Variant
+    Dim i As Long, j As Long
+    
+    If r1 < 0 Then r1 = LBound(arr, 1)
+    If r2 < 0 Then r2 = UBound(arr, 1)
+    
+    Select Case ArrayRank(arr)
+        Case 1
+            If c1 >= 0 Or c2 >= 0 Then
+                Err.Raise 32000, Description:= _
+                    "Too many array dimensions passed to ArraySubset."
+            End If
+            ReDim arr2( _
+                NORMALIZE_LBOUND To NORMALIZE_LBOUND + r2 - r1)
+            For i = r1 To r2
+                arr2( _
+                    i - r1 + NORMALIZE_LBOUND) = arr(i)
+            Next
+            
+        Case 2
+            If c1 < 0 Then c1 = LBound(arr, 2)
+            If c2 < 0 Then c2 = UBound(arr, 2)
+            ReDim arr2( _
+                NORMALIZE_LBOUND To NORMALIZE_LBOUND + r2 - r1, _
+                NORMALIZE_LBOUND To NORMALIZE_LBOUND + c2 - c1)
+            For i = r1 To r2
+            For j = c1 To c2
+                arr2( _
+                    i - r1 + NORMALIZE_LBOUND, _
+                    j - c1 + NORMALIZE_LBOUND) = arr(i, j)
+            Next j, i
+            
+        Case Else
+            Err.Raise 32000, Description:= _
+                "Can only take a subset of a 1- or 2-dimensional array."
+    End Select
+    
+    ArraySubset = arr2
+End Function
