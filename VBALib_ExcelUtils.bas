@@ -224,6 +224,12 @@ Public Sub ShowStatusMessage(statusMessage As String)
     Application.Caption = Len(statusMessage) & ":" & statusMessage
 End Sub
 
+' Shows a status message for 2-3 seconds then removes it.
+Public Sub FlashStatusMessage(statusMessage As String)
+    ShowStatusMessage msg
+    Application.OnTime Now + TimeValue("0:00:02"), ClearStatusMessage
+End Sub
+
 ' Clears any status message that is currently being displayed by a macro.
 Public Sub ClearStatusMessage()
     Application.StatusBar = False
