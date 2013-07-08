@@ -349,3 +349,44 @@ Public Function ExcelLinkExists(linkFilename As String, _
     
     ExcelLinkExists = (GetMatchingLinkName(linkFilename, wb) <> "")
 End Function
+
+' Refreshes all Access database connections in the given workbook.
+' @param wb: The workbook to refresh (defaults to the active workbook).
+Public Sub RefreshAccessConnections(Optional wb As Workbook)
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    
+    Dim cn As WorkbookConnection
+    
+    On Error GoTo err_
+    Application.Calculation = xlCalculationManual
+    
+    Dim numConnections As Integer, i As Integer
+    
+    For Each cn In wb.Connections
+        If cn.Type = xlConnectionTypeOLEDB Then
+            numConnections = numConnections + 1
+        End If
+    Next
+    
+    For Each cn In wb.Connections
+        If cn.Type = xlConnectionTypeOLEDB Then
+            i = i + 1
+            ShowStatusMessage "Refreshing data connection '" _
+                & cn.OLEDBConnection.CommandText _
+                & "' (" & i & " of " & numConnections & ")"
+            cn.OLEDBConnection.BackgroundQuery = False
+            cn.Refresh
+       End If
+    Next
+    
+    GoTo done_
+err_:
+    MsgBox "Error " & Err.Number & ": " & Err.Description
+    
+done_:
+    ShowStatusMessage "Recalculating"
+    Application.Calculation = xlCalculationAutomatic
+    Application.Calculate
+    
+    ClearStatusMessage
+End Sub
