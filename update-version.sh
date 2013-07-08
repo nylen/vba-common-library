@@ -7,5 +7,8 @@ point="$1"
 cd "$(dirname "$0")"
 
 prefix="' Common VBA Library, version "
-sed -i "s/^$prefix.*$/$prefix`date +%Y-%m-%d`.$point/" VBALib_VERSION.bas
+version="`date +%Y-%m-%d`.$point"
+
+sed -i "s/^$prefix.*$/$prefix$version/" VBALib_VERSION.bas
 unix2dos VBALib_VERSION.bas
+echo Updated version to $version
