@@ -36,6 +36,18 @@ Public Sub RemoveModule(moduleName As String, Optional wb As Workbook)
     Dim c As Variant ' VBComponent
     Set c = wb.VBProject.VBComponents.Item(moduleName)
     wb.VBProject.VBComponents.Remove c
+    
+    ' Sometimes the line above does not remove the module successfully.  When
+    ' this happens, c.Name does not return an error - otherwise it does.
+    On Error GoTo nameError
+    Dim n As String
+    n = c.Name
+    On Error GoTo 0
+    Err.Raise 32000, Description:= _
+        "Failed to remove module '" & moduleName & "'.  Try again later."
+    
+nameError:
+    ' Everything worked fine (the module was removed)
 End Sub
 
 ' Exports a VBA code module to a text file.
