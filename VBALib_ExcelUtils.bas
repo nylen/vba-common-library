@@ -20,6 +20,14 @@ Public Enum Corner
     cnrBottomRight
 End Enum
 
+Public Enum OverwriteAction
+    oaPrompt = 1
+    oaOverwrite = 2
+    oaSkip = 3
+    oaError = 4
+    oaCreateDirectory = 8
+End Enum
+
 ' Determines whether a given workbook has been opened.  Pass this function
 ' a filename only, not a full path.
 Public Function IsWorkbookOpen(wbFilename As String) As Boolean
@@ -423,4 +431,129 @@ notFound:
     On Error GoTo 0
     Err.Raise 32000, Description:= _
         "Could not find table '" & tblName & "'."
+End Function
+
+' Returns the Excel workbook format for the given file extension.
+Public Function GetWorkbookFileFormat(fileExtension As String) As XlFileFormat
+    Select Case LCase(Replace(fileExtension, ".", ""))
+        Case "xls"
+            GetWorkbookFileFormat = xlExcel8
+        Case "xla"
+            GetWorkbookFileFormat = xlAddIn8
+        Case "xlt"
+            GetWorkbookFileFormat = xlTemplate8
+        Case "csv"
+            GetWorkbookFileFormat = xlCSV
+        Case "txt"
+            GetWorkbookFileFormat = xlCurrentPlatformText
+        Case "xlsx"
+            GetWorkbookFileFormat = xlOpenXMLWorkbook
+        Case "xlsm"
+            GetWorkbookFileFormat = xlOpenXMLWorkbookMacroEnabled
+        Case "xlsb"
+            GetWorkbookFileFormat = xlExcel12
+        Case "xlam"
+            GetWorkbookFileFormat = xlOpenXMLAddIn
+        Case "xltx"
+            GetWorkbookFileFormat = xlOpenXMLTemplate
+        Case "xltm"
+            GetWorkbookFileFormat = xlOpenXMLTemplateMacroEnabled
+        Case Else
+            Err.Raise 32000, Description:= _
+                "Unrecognized Excel file extension: '" & fileExtension & "'"
+    End Select
+End Function
+
+' Saves the given workbook as a different filename, with options for handling
+' the case where the file already exists.  Returns True if the workbook was
+' saved, or False if it was not saved.
+' @param oAction: The action that will be taken if the given file exists.  This
+' parameter also accepts the oaCreateDirectory flag, which means that the
+' directory hierarchy of the requested filename will be created if it does not
+' already exist.  If not given, defaults to oaPrompt.
+Public Function SaveWorkbookAs(wb As Workbook, newFilename As String, _
+    Optional oAction As OverwriteAction = oaPrompt, _
+    Optional openReadOnly As Boolean = False) As Boolean
+    
+    If Not FolderExists(GetDirectoryName(newFilename)) Then
+        If oAction And oaCreateDirectory Then
+            MkDirRecursive GetDirectoryName(newFilename)
+        Else
+            Err.Raise 32000, Description:= _
+                "The requested workbook filename would be in a folder that " _
+                    & "does not exist:" & vbLf & vbLf & newFilename
+        End If
+    End If
+    
+    If FileExists(newFilename) Then
+        If oAction And oaOverwrite Then
+            Kill newFilename
+            ' Proceed to save the file
+            
+        ElseIf oAction And oaError Then
+            Err.Raise 32000, Description:= _
+                "The given filename already exists:" _
+                    & vbLf & vbLf & newFilename
+            
+        ElseIf oAction And oaPrompt Then
+            Dim r As VbMsgBoxResult
+            r = MsgBox(Title:="Overwrite Excel file?", _
+                Buttons:=vbYesNo + vbExclamation, _
+                Prompt:="The following Excel file already exists:" _
+                    & vbLf & vbLf & newFilename & vbLf & vbLf _
+                    & "Do you want to overwrite it?")
+            If r = vbYes Then
+                Kill newFilename
+            Else
+                SaveWorkbookAs = False
+                Exit Function
+            End If
+            
+        ElseIf oAction And oaSkip Then
+            SaveWorkbookAs = False
+            Exit Function
+            
+        Else
+            Err.Raise 32000, Description:= _
+                "Bad overwrite action value passed to SaveWorkbookAs."
+            
+        End If
+    End If
+    
+    ' wb.SaveCopyAs doesn't take all the fancy arguments that wb.SaveAs does,
+    ' but it's the only way to save a copy of the current workbook.  This
+    ' means, among other things, that it is not possible to save the workbook
+    ' as a different format than the original workbook.  To work around this,
+    ' call SaveCopyAs with a temporary filename first, then open the temporary
+    ' file, then call SaveAs with the desired filename and options.
+    Dim tmpFilename As String
+    tmpFilename = CombinePaths(GetTempPath, Int(Rnd * 1000000) & "-" & wb.Name)
+    
+    wb.SaveCopyAs tmpFilename
+    Set wb = Workbooks.Open(tmpFilename, UpdateLinks:=False, ReadOnly:=True)
+    wb.SaveAs Filename:=newFilename, _
+        FileFormat:=GetWorkbookFileFormat(GetFileExtension(newFilename)), _
+        ReadOnlyRecommended:=openReadOnly
+    wb.Close SaveChanges:=False
+    
+    Kill tmpFilename
+    
+    SaveWorkbookAs = True
+End Function
+
+' Saves the current workbook as a different filename, with options for handling
+' the case where the file already exists.  Returns True if the workbook was
+' saved, or False if it was not saved.
+' @param oAction: The action that will be taken if the given file exists.  This
+' parameter also accepts the oaCreateDirectory flag, which means that the
+' directory hierarchy of the requested filename will be created if it does not
+' already exist.  If not given, defaults to oaPrompt.
+' @param openReadOnly: True or False to determine whether the created workbook
+' will prompt users to open it as read-only (defaults to False).
+Public Function SaveThisWorkbookAs(newFilename As String, _
+    Optional oAction As OverwriteAction = oaPrompt, _
+    Optional openReadOnly As Boolean = False) As Boolean
+    
+    SaveThisWorkbookAs = SaveWorkbookAs(ThisWorkbook, newFilename, _
+        oAction, openReadOnly)
 End Function

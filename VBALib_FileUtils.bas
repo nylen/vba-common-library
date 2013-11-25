@@ -102,6 +102,17 @@ Public Function GetFilename(ByVal p As String) As String
     GetFilename = Mid(p, i + 1)
 End Function
 
+' Returns the extension of a filename (including the dot).
+Public Function GetFileExtension(ByVal p As String) As String
+    Dim i As Integer
+    i = InStrRev(p, ".")
+    If i > 0 Then
+        GetFileExtension = Mid(p, i)
+    Else
+        GetFileExtension = ""
+    End If
+End Function
+
 Private Function ListFiles_Internal(filePattern As String, attrs As Long) _
     As Variant()
     
