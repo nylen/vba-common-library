@@ -42,13 +42,31 @@ Public Sub UpdateValues()
 End Sub
 
 ' Breaks this link, replacing the formulas that linked to the source
-' spreadsheet with their values.  Returns whether the operation succeeded
-' (sometimes Excel prevents breaking links until a workbook is closed and
-' re-opened).
-Public Function Break() As Boolean
+' spreadsheet with their values.  Sometimes Excel prevents breaking links
+' completely, if there are named ranges left behind from the original
+' workbook.  This function will remove these named ranges and attempt to
+' break the link again if it still exists.
+Public Sub Break()
     mWorkbook.BreakLink mName, xlLinkTypeExcelLinks
-    Break = Not ExcelLinkExists(mName, mWorkbook)
-End Function
+    
+    Dim wbNameStr As String
+    wbNameStr = "[" & Replace(GetFilename(mName), "'", "''") & "]"
+    
+    Dim n As Name
+    For Each n In mWorkbook.Names
+        If InStr(n.RefersTo, wbNameStr) > 0 Then
+            n.Delete
+        End If
+    Next
+    
+    If ExcelLinkExists(mName, mWorkbook) Then
+        mWorkbook.BreakLink mName, xlLinkTypeExcelLinks
+        If ExcelLinkExists(mName, mWorkbook) Then
+            Err.Raise 32000, Description:= _
+                "Failed to break Excel link to workbook '" & mName & "'."
+        End If
+    End If
+End Sub
 
 ' Changes this link to point to another Excel workbook.
 Public Sub ChangeSource(newWorkbookPath As String)
