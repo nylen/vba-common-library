@@ -16,6 +16,7 @@ Option Explicit
 Private mWorkbook As Workbook
 Private mName As String
 
+' Returns the name of this Excel link.
 Public Property Get Name() As String
     Name = mName
 End Property
