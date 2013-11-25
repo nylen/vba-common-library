@@ -290,7 +290,7 @@ Private Function GetMatchingLinkName(linkFilename As String, _
     If wb Is Nothing Then Set wb = ActiveWorkbook
     
     Dim linkNames() As Variant
-    linkNames = NormalizeArray(ActiveWorkbook.LinkSources(xlExcelLinks))
+    linkNames = NormalizeArray(wb.LinkSources(xlExcelLinks))
     
     Dim i As Integer, matchingLinkName As String
     
