@@ -53,7 +53,7 @@ End Sub
 ' Exports a VBA code module to a text file.
 ' @param wb: The workbook that contains the module to export (defaults to the
 ' active workbook).
-Public Sub ExportModule(moduleName As String, filename As String, _
+Public Sub ExportModule(moduleName As String, moduleFilename As String, _
     Optional wb As Workbook)
     
     If wb Is Nothing Then Set wb = ActiveWorkbook
@@ -61,13 +61,15 @@ Public Sub ExportModule(moduleName As String, filename As String, _
         Err.Raise 32000, Description:= _
             "Module '" & moduleName & "' not found."
     End If
-    wb.VBProject.VBComponents.Item(moduleName).Export filename
+    wb.VBProject.VBComponents.Item(moduleName).Export moduleFilename
 End Sub
 
 ' Imports a VBA code module from a text file.
 ' @param wb: The workbook that will receive the imported module (defaults to
 ' the active workbook).
-Public Function ImportModule(filename As String, Optional wb As Workbook) As VBComponent
+Public Function ImportModule(moduleFilename As String, _
+    Optional wb As Workbook) As VBComponent
+    
     If wb Is Nothing Then Set wb = ActiveWorkbook
-    Set ImportModule = wb.VBProject.VBComponents.Import(filename)
+    Set ImportModule = wb.VBProject.VBComponents.Import(moduleFilename)
 End Function
