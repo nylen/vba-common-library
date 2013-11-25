@@ -390,3 +390,37 @@ done_:
     
     ClearStatusMessage
 End Sub
+
+' Returns a wrapper object for the table with the given name in the given
+' workbook.
+' @param wb: The workbook that contains the table (defaults to the active
+' workbook).
+Public Function GetExcelTable(tblName As String, Optional wb As Workbook) _
+    As VBALib_ExcelTable
+    
+    If wb Is Nothing Then Set wb = ActiveWorkbook
+    
+    On Error GoTo notFound
+    
+    Dim wbPrevActive As Workbook
+    Set wbPrevActive = ActiveWorkbook
+    wb.Activate
+    
+    ' We could just do Range(tblName).ListObject, but then this would allow
+    ' getting a table by any of its cells or columns.  Instead, do some
+    ' verification that the string we were passed is actually the name of
+    ' a table.
+    Dim tbl As ListObject
+    Set tbl = Range(tblName).Parent.ListObjects(tblName)
+    
+    wbPrevActive.Activate
+    
+    Set GetExcelTable = New VBALib_ExcelTable
+    GetExcelTable.Initialize tbl
+    Exit Function
+    
+notFound:
+    On Error GoTo 0
+    Err.Raise 32000, Description:= _
+        "Could not find table '" & tblName & "'."
+End Function
