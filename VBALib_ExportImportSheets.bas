@@ -55,6 +55,8 @@ Public Function ExportExcelSheets(sheetsSpec() As Variant, _
     DeleteSheet wb.Sheets(1)
     
     ExportExcelSheets = SaveWorkbookAs(wb, wbFilename, oAction, openReadOnly)
+    
+    wb.Close SaveChanges:=False
 End Function
 
 Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
@@ -202,10 +204,10 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
                 End If
             Next
             
-            If ExcelLinkExists(currentFilename, wb) Then
+            If ExcelLinkExists(currentWb.Name, wb) Then
                 ShowStatusMessage "Breaking link to workbook:  " & currentWb.Name
                 Dim currentWbLink As VBALib_ExcelLink
-                Set currentWbLink = GetExcelLink(currentFilename, wb)
+                Set currentWbLink = GetExcelLink(currentWb.Name, wb)
                 currentWbLink.Break
             End If
             
