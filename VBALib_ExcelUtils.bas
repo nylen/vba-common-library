@@ -532,11 +532,12 @@ Public Function SaveWorkbookAs(wb As Workbook, newFilename As String, _
     tmpFilename = CombinePaths(GetTempPath, Int(Rnd * 1000000) & "-" & wb.Name)
     wb.SaveCopyAs tmpFilename
     
-    Set wb = Workbooks.Open(tmpFilename, UpdateLinks:=False, ReadOnly:=True)
-    wb.SaveAs Filename:=newFilename, _
+    Dim wbTmp As Workbook
+    Set wbTmp = Workbooks.Open(tmpFilename, UpdateLinks:=False, ReadOnly:=True)
+    wbTmp.SaveAs filename:=newFilename, _
         FileFormat:=GetWorkbookFileFormat(GetFileExtension(newFilename)), _
         ReadOnlyRecommended:=openReadOnly
-    wb.Close SaveChanges:=False
+    wbTmp.Close SaveChanges:=False
     
     Kill tmpFilename
     
