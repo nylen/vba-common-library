@@ -54,7 +54,7 @@ Public Sub Break()
     
     Dim n As Name
     For Each n In mWorkbook.Names
-        If InStr(n.RefersTo, wbNameStr) > 0 Then
+        If InStr(1, n.RefersTo, wbNameStr, vbTextCompare) > 0 Then
             n.Delete
         End If
     Next
