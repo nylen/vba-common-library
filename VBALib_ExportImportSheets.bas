@@ -163,8 +163,9 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
                             Set currentWb = Workbooks( _
                                 GetFilename(currentFilename))
                         Else
-                            Set currentWb = Workbooks.Open( _
-                                wbFilenames(i), ReadOnly:=True)
+                            Set currentWb = Workbooks.Open(wbFilenames(i), _
+                                ReadOnly:=True, _
+                                UpdateLinks:=False)
                         End If
                         ClearStatusMessage
                     End If
@@ -226,7 +227,7 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
         If sheetPositions(i) = "" Then
             wb.Sheets(newSheetNames(i)).Move _
                 Before:=wb.Sheets(1)
-        Else
+        ElseIf SheetExists(sheetPositions(i), wb) Then
             wb.Sheets(newSheetNames(i)).Move _
                 After:=wb.Sheets(sheetPositions(i))
         End If
