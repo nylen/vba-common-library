@@ -480,7 +480,7 @@ Public Function SaveWorkbookAs(wb As Workbook, newFilename As String, _
             MkDirRecursive GetDirectoryName(newFilename)
         Else
             Err.Raise 32000, Description:= _
-                "The requested workbook filename would be in a folder that " _
+                "The parent folder of the requested workbook filename " _
                     & "does not exist:" & vbLf & vbLf & newFilename
         End If
     End If
@@ -504,6 +504,7 @@ Public Function SaveWorkbookAs(wb As Workbook, newFilename As String, _
                     & "Do you want to overwrite it?")
             If r = vbYes Then
                 Kill newFilename
+                ' Proceed to save the file
             Else
                 SaveWorkbookAs = False
                 Exit Function
@@ -526,10 +527,11 @@ Public Function SaveWorkbookAs(wb As Workbook, newFilename As String, _
     ' as a different format than the original workbook.  To work around this,
     ' call SaveCopyAs with a temporary filename first, then open the temporary
     ' file, then call SaveAs with the desired filename and options.
+    
     Dim tmpFilename As String
     tmpFilename = CombinePaths(GetTempPath, Int(Rnd * 1000000) & "-" & wb.Name)
-    
     wb.SaveCopyAs tmpFilename
+    
     Set wb = Workbooks.Open(tmpFilename, UpdateLinks:=False, ReadOnly:=True)
     wb.SaveAs Filename:=newFilename, _
         FileFormat:=GetWorkbookFileFormat(GetFileExtension(newFilename)), _
