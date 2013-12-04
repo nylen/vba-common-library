@@ -49,7 +49,7 @@ Public Function SheetExists(sheetName As String, Optional wb As Workbook) _
     As Boolean
     
     If wb Is Nothing Then Set wb = ActiveWorkbook
-    Dim s As Worksheet
+    Dim s As Object ' Not Worksheet because it could also be a chart
     
     On Error GoTo notFound
     Set s = wb.Sheets(sheetName)
@@ -97,7 +97,7 @@ End Function
 ' active workbook).
 Public Sub DeleteSheetByName(sheetName As String, Optional wb As Workbook)
     If wb Is Nothing Then Set wb = ActiveWorkbook
-    If SheetExists(sheetName, wb) Then DeleteSheet wb.Sheets(sheetName)
+    If SheetExists(sheetName, wb) Then DeleteSheetOrSheets wb.Sheets(sheetName)
 End Sub
 
 ' Deletes the given worksheet, without prompting for confirmation.
