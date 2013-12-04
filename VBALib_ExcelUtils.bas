@@ -552,10 +552,10 @@ End Function
 ' already exist.  If not given, defaults to oaPrompt.
 ' @param openReadOnly: True or False to determine whether the created workbook
 ' will prompt users to open it as read-only (defaults to False).
-Public Function SaveThisWorkbookAs(newFilename As String, _
+Public Function SaveActiveWorkbookAs(newFilename As String, _
     Optional oAction As OverwriteAction = oaPrompt, _
     Optional openReadOnly As Boolean = False) As Boolean
     
-    SaveThisWorkbookAs = SaveWorkbookAs(ThisWorkbook, newFilename, _
+    SaveActiveWorkbookAs = SaveWorkbookAs(ActiveWorkbook, newFilename, _
         oAction, openReadOnly)
 End Function
