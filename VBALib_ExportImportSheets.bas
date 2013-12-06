@@ -157,7 +157,7 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
                     If currentFilename = "ThisWorkbook" Then
                         Set currentWb = ThisWorkbook
                     Else
-                        ShowStatusMessage "Opening workbook:  " _
+                        ShowStatusMessage "Opening workbook: " _
                             & GetFilename(currentFilename)
                         If IsWorkbookOpen(GetFilename(currentFilename)) Then
                             Set currentWb = Workbooks( _
@@ -172,7 +172,7 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
                 End If
                 
                 If SheetExists(newSheetNames(i), wb) Then
-                    ShowStatusMessage "Deleting sheet:  " & newSheetNames(i)
+                    ShowStatusMessage "Deleting sheet: " & newSheetNames(i)
                     DeleteSheetByName newSheetNames(i), wb
                     ClearStatusMessage
                 End If
@@ -188,7 +188,7 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
             Dim oldSheetCount As Long
             oldSheetCount = wb.Sheets.Count
             
-            ShowStatusMessage "Copying sheets from workbook:  " _
+            ShowStatusMessage "Copying sheets from workbook: " _
                 & currentWb.Name
             currentWb.Sheets(sheetsToCopy.Items).Copy _
                 After:=wb.Sheets(wb.Sheets.Count)
@@ -200,20 +200,20 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
             
             For i = i1 To i2
                 If sheetNames(i) <> newSheetNames(i) Then
-                    ShowStatusMessage "Renaming sheet:  " & newSheetNames(i)
+                    ShowStatusMessage "Renaming sheet: " & newSheetNames(i)
                     wb.Sheets(sheetNames(i)).Name = newSheetNames(i)
                 End If
             Next
             
             If ExcelLinkExists(currentWb.Name, wb) Then
-                ShowStatusMessage "Breaking link to workbook:  " & currentWb.Name
+                ShowStatusMessage "Breaking link to workbook: " & currentWb.Name
                 Dim currentWbLink As VBALib_ExcelLink
                 Set currentWbLink = GetExcelLink(currentWb.Name, wb)
                 currentWbLink.Break
             End If
             
             If currentFilename <> "ThisWorkbook" Then
-                ShowStatusMessage "Closing workbook:  " & currentWb.Name
+                ShowStatusMessage "Closing workbook: " & currentWb.Name
                 currentWb.Close SaveChanges:=False
             End If
             Set currentWb = Nothing
