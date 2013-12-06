@@ -87,6 +87,9 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
     Dim sheetPositions() As String
     ReDim sheetPositions(i1 To i2)
     
+    ' The list of Excel links to other workbooks that could not be broken.
+    Dim linksFailedToBreak As New VBALib_List
+    
     Dim i As Long
     For i = i1 To i2
         Dim thisFolderName As String, thisFilename As String
@@ -138,6 +141,8 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
     Dim currentWb As Workbook
     Dim filesProcessed As New VBALib_List
     Dim sheetsToCopy As New VBALib_List
+    Dim oldLinkNames As New VBALib_List
+    Dim newLinkNames As New VBALib_List
     
     Do
         currentFilename = ""
@@ -188,6 +193,13 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
             Dim oldSheetCount As Long
             oldSheetCount = wb.Sheets.Count
             
+            ' Store the list of linked files in the workbook before copying
+            ' sheets over, because copying a sheet can add more than one link.
+            oldLinkNames.Clear
+            On Error Resume Next ' wb.LinkSources returns Empty if no links
+            oldLinkNames.AddRange wb.LinkSources(xlExcelLinks)
+            On Error GoTo 0
+            
             ShowStatusMessage "Copying sheets from workbook: " _
                 & currentWb.Name
             currentWb.Sheets(sheetsToCopy.Items).Copy _
@@ -199,18 +211,40 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
             Next
             
             For i = i1 To i2
-                If sheetNames(i) <> newSheetNames(i) Then
+                If LCase(currentFilename) = LCase(wbFilenames(i)) _
+                    And sheetNames(i) <> newSheetNames(i) Then
+                    
                     ShowStatusMessage "Renaming sheet: " & newSheetNames(i)
                     wb.Sheets(sheetNames(i)).Name = newSheetNames(i)
                 End If
             Next
             
+            ' Get the list of links again, and remove any that didn't exist
+            ' before, as well as any link to the workbook that contains the
+            ' sheet(s) we're currently copying.
+            newLinkNames.Clear
+            newLinkNames.AddRange wb.LinkSources(xlExcelLinks)
             If ExcelLinkExists(currentWb.Name, wb) Then
-                ShowStatusMessage "Breaking link to workbook: " & currentWb.Name
-                Dim currentWbLink As VBALib_ExcelLink
-                Set currentWbLink = GetExcelLink(currentWb.Name, wb)
-                currentWbLink.Break
+                newLinkNames.AddOnce currentWb.FullName
             End If
+            
+            Dim linkName_ As Variant, linkName As String
+            For Each linkName_ In newLinkNames.Items
+                linkName = linkName_
+                ' Always try to remove the link to the current workbook, even
+                ' if it already existed.
+                If LCase(GetFilename(linkName)) = LCase(currentWb.Name) _
+                    Or Not oldLinkNames.Contains(linkName) Then
+                    
+                    ShowStatusMessage "Breaking link to workbook: " _
+                        & GetFilename(linkName)
+                    Dim currentWbLink As VBALib_ExcelLink
+                    Set currentWbLink = GetExcelLink(linkName, wb)
+                    If Not currentWbLink.Break(False) Then
+                        linksFailedToBreak.Add GetFilename(linkName)
+                    End If
+                End If
+            Next
             
             If currentFilename <> "ThisWorkbook" Then
                 ShowStatusMessage "Closing workbook: " & currentWb.Name
@@ -233,6 +267,13 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
         End If
     Next
     ClearStatusMessage
+    
+    If linksFailedToBreak.Count Then
+        MsgBox Prompt:="Failed to break links to one or more workbooks:" _
+                & vbLf & vbLf & Join(linksFailedToBreak.Items, vbLf), _
+            Title:="Excel link failure", _
+            Buttons:=vbOKOnly + vbExclamation
+    End If
     
     prevActiveSheet.Activate
 End Sub
