@@ -87,6 +87,19 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
     Dim sheetPositions() As String
     ReDim sheetPositions(i1 To i2)
     
+    ' The order in which sheets need to be moved when they are rearranged.  To
+    ' see why this is necessary, imagine that a workbook contains sheets A, B,
+    ' C, and D, but the program obtains these sheets in the order A, C, B, D.
+    ' When rearranging sheets, A would be moved to its position (correctly),
+    ' then C would be moved to its position after B, but since B was not in the
+    ' desired position, then C would not be moved to its desired position
+    ' either.  To solve this, store the order of the existing sheets in the
+    ' workbook, and move the new sheets in that order.
+    Dim sheetMoveOrder() As Long
+    ReDim sheetMoveOrder(i1 To i2)
+    ' Supporting variables for sheetMoveOrder.
+    Dim sheetIndex As Long, sheetMoveOrderIndex As Long
+    
     ' The list of Excel links to other workbooks that could not be broken.
     Dim linksFailedToBreak As New VBALib_List
     
@@ -123,7 +136,6 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
         End If
         
         If SheetExists(newSheetNames(i), wb) Then
-            Dim sheetIndex As Long
             sheetIndex = wb.Sheets(newSheetNames(i)).Index
             If sheetIndex = 1 Then
                 sheetPositions(i) = ""
@@ -135,7 +147,33 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
         Else
             sheetPositions(i) = newSheetNames(i - 1)
         End If
+        
+        sheetMoveOrder(i) = i1 - 1
     Next
+    
+    ' Determine the order in which we need to rearrange sheets.  Start by
+    ' looping over all of the workbook's current sheets, and checking if they
+    ' are sheets that will be replaced during this run.  If so, then rearrange
+    ' them in that order.
+    sheetMoveOrderIndex = i1
+    For sheetIndex = 1 To wb.Sheets.Count
+        i = ArrayIndexOf(newSheetNames, wb.Sheets(sheetIndex).Name)
+        If i >= i1 Then
+            sheetMoveOrder(sheetMoveOrderIndex) = i
+            sheetMoveOrderIndex = sheetMoveOrderIndex + 1
+        End If
+    Next
+    ' Now, add any sheets that will be added to the workbook, but do not exist
+    ' yet.  Ensure that these sheets are arranged according to the order in
+    ' the specification passed to this function.
+    For i = i1 To i2
+        If Not ArrayContains(sheetMoveOrder, i) Then
+            sheetMoveOrder(sheetMoveOrderIndex) = i
+            sheetMoveOrderIndex = sheetMoveOrderIndex + 1
+        End If
+    Next
+    ' Sanity check
+    'If sheetMoveOrderIndex <> i2 + 1 Then Stop
     
     Dim currentFilename As String
     Dim currentWb As Workbook
@@ -258,12 +296,12 @@ Private Sub CopyExcelSheets(wb As Workbook, sheetsSpec() As Variant, _
     
     ShowStatusMessage "Rearranging sheets"
     For i = i1 To i2
-        If sheetPositions(i) = "" Then
-            wb.Sheets(newSheetNames(i)).Move _
+        If sheetPositions(sheetMoveOrder(i)) = "" Then
+            wb.Sheets(newSheetNames(sheetMoveOrder(i))).Move _
                 Before:=wb.Sheets(1)
-        ElseIf SheetExists(sheetPositions(i), wb) Then
-            wb.Sheets(newSheetNames(i)).Move _
-                After:=wb.Sheets(sheetPositions(i))
+        ElseIf SheetExists(sheetPositions(sheetMoveOrder(i)), wb) Then
+            wb.Sheets(newSheetNames(sheetMoveOrder(i))).Move _
+                After:=wb.Sheets(sheetPositions(sheetMoveOrder(i)))
         End If
     Next
     ClearStatusMessage
