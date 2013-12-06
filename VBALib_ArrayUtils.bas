@@ -259,3 +259,25 @@ Public Function ArraySubset(arr() As Variant, _
     
     ArraySubset = arr2
 End Function
+
+' Returns the index of the given value in the given array, or one less than
+' the lower bound of the array if the value is not found in the array.
+' @param arr: The array to search through.
+' @param val: The value to search for.
+Public Function ArrayIndexOf(arr As Variant, val As Variant) As Long
+    ArrayIndexOf = LBound(arr) - 1
+    Dim i As Long
+    For i = LBound(arr) To UBound(arr)
+        If arr(i) = val Then
+            ArrayIndexOf = i
+            Exit Function
+        End If
+    Next
+End Function
+
+' Returns whether the given array contains the given value.
+' @param arr: The array to search through.
+' @param val: The value to search for.
+Public Function ArrayContains(arr As Variant, val As Variant) As Boolean
+    ArrayContains = (ArrayIndexOf(arr, val) >= LBound(arr))
+End Function
