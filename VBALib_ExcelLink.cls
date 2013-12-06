@@ -45,8 +45,11 @@ End Sub
 ' spreadsheet with their values.  Sometimes Excel prevents breaking links
 ' completely, if there are named ranges left behind from the original
 ' workbook.  This function will remove these named ranges and attempt to
-' break the link again if it still exists.
-Public Sub Break()
+' break the link again if it still exists.  Returns whether the link was
+' successfully broken.
+' @param errorIfFail: Whether to throw an error if breaking the link fails.
+' Deafults to True.
+Public Function Break(Optional errorIfFail As Boolean = True) As Boolean
     mWorkbook.BreakLink mName, xlLinkTypeExcelLinks
     
     Dim wbNameStr As String
@@ -59,14 +62,20 @@ Public Sub Break()
         End If
     Next
     
+    Break = True
+    
     If ExcelLinkExists(mName, mWorkbook) Then
         mWorkbook.BreakLink mName, xlLinkTypeExcelLinks
         If ExcelLinkExists(mName, mWorkbook) Then
-            Err.Raise 32000, Description:= _
-                "Failed to break Excel link to workbook '" & mName & "'."
+            If errorIfFail Then
+                Err.Raise 32000, Description:= _
+                    "Failed to break Excel link to workbook '" & mName & "'."
+            Else
+                Break = False
+            End If
         End If
     End If
-End Sub
+End Function
 
 ' Changes this link to point to another Excel workbook.
 Public Sub ChangeSource(newWorkbookPath As String)
