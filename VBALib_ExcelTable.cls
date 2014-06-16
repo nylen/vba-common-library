@@ -253,7 +253,8 @@ End Sub
 Public Sub CreateNamedRanges(namePrefix As String)
     Dim c As Long
     For c = 1 To mListObject.ListColumns.Count
-        ThisWorkbook.Names.Add _
+        ' Get sheet then workbook
+        mListObject.Parent.Parent.Names.Add _
             Name:=namePrefix & Column(c).Name, _
             RefersTo:="='" & mListObject.Parent.Name & "'!" _
                 & ColumnRange(c).Address(True, True)
