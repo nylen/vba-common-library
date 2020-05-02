@@ -5,8 +5,11 @@ Attribute VB_Name = "VBALib_ArrayUtils"
 
 Option Explicit
 
-Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" _
-    (dest As Any, source As Any, ByVal bytes As Long)
+#If VBA7 Then
+    Private Declare PtrSafe Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (dest As Any, source As Any, ByVal bytes As Long)
+#Else
+    Private Declare Sub CopyMemory Lib "kernel32" Alias "RtlMoveMemory" (dest As Any, source As Any, ByVal bytes As Long)
+#End If
 
 Private Const NORMALIZE_LBOUND = 1
 
