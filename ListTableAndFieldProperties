@@ -1,0 +1,375 @@
+Option Compare Database
+Option Explicit
+
+Public Sub ListAllTablesProperties(Optional fWriteToFile As Boolean = True, Optional fOpenFile As Boolean = True)
+On Error GoTo HandleError
+    Dim db As Database
+    Dim tdf As TableDef
+    Dim x As Double
+    Set db = CurrentDb
+    
+    'text file header
+    Dim strLine  As String
+    strLine = _
+        "Table Name,Table Validation Rule,Table Validation Text," & _
+        "Table Attributes,Table Date Created,Table Indexes Count, Table Indexes, " & _
+        "Table Record Count,Table Properties Count,Table Properties," & _
+        "FieldName,Field Allow Zero Length, Field Attributes, Field Default Value " & _
+        "Field Required,Field Size, Field Type, Field Validation Rule, Field Validation Text, Field Count, Field Properties" & _
+        "Field Description,Field DataType Name, Field DataType,Field DataSize"
+    
+    'Write text file body
+    For Each tdf In db.TableDefs
+        If Left(tdf.Name, 4) <> "MSys" Then ' Don't enumerate the system tables
+            Dim fld As DAO.Field
+            Dim strTbfPrefix As String
+            strTbfPrefix = HandleCsvColumn(tdf.Name) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.ValidationRule) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.ValidationText) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.Attributes) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.DateCreated) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.Indexes.Count) & ","
+            If tdf.Indexes.Count = 0 Then
+                strTbfPrefix = strTbfPrefix & HandleCsvColumn(vbNullString) & ","
+            Else
+                Dim strIndexValue As String
+                strIndexValue = "|"
+                Dim varIndex As DAO.Index
+                For Each varIndex In tdf.Indexes
+                    strIndexValue = strIndexValue & "Name=" & varIndex.Name & ";"
+                    strIndexValue = strIndexValue & "Clustered=" & varIndex.Clustered & ";"
+                    strIndexValue = strIndexValue & "DistinctCount=" & varIndex.DistinctCount & ";"
+                    strIndexValue = strIndexValue & "Field Count=" & varIndex.Fields.Count & ";"
+                    strIndexValue = strIndexValue & "Foreign=" & varIndex.Foreign & ";"
+                    strIndexValue = strIndexValue & "IgnoreNulls=" & varIndex.IgnoreNulls & ";"
+                    strIndexValue = strIndexValue & "Primary=" & varIndex.Primary & ";"
+                    strIndexValue = strIndexValue & "Properties Count=" & varIndex.Properties.Count & ";"
+                    strIndexValue = strIndexValue & "Required=" & varIndex.Required & ";"
+                    strIndexValue = strIndexValue & "Unique=" & varIndex.Unique & ";"
+                    strIndexValue = strIndexValue & "|"
+                Next
+                strTbfPrefix = strTbfPrefix & HandleCsvColumn(strIndexValue) & ","
+            End If
+            
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.RecordCount) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(tdf.Properties.Count) & ","
+            strTbfPrefix = strTbfPrefix & HandleCsvColumn(GetPropertyValue(tdf.Properties))
+            For Each fld In tdf.Fields
+                Dim strFldPrefix As String
+                strFldPrefix = HandleCsvColumn(fld.Name) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.AllowZeroLength) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.Attributes) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.DefaultValue) & ","
+'                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.FieldSize) & ","
+'                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.OriginalValue) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.Required) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.Size) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.Type) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.ValidationRule) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.ValidationText) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(fld.Properties.Count) & ","
+                strFldPrefix = strFldPrefix & HandleCsvColumn(GetPropertyValue(fld.Properties))
+                strLine = strLine & vbCrLf & strTbfPrefix & "," & strFldPrefix
+                Debug.Print strTbfPrefix & "," & strFldPrefix
+            Next fld
+        End If
+    Next tdf
+    'Create text file
+    If fWriteToFile Then
+        Dim strFilename As String
+        strFilename = RemoveFilenameExtention(CurrentProject.Name) & "_ListAllTableProperties.csv"
+        SaveTextToFile strLine, strFilename, fOpenNewFile:=fOpenFile
+    End If
+ExitSub:
+Exit Sub
+HandleError:
+    Select Case Err.Number
+        Case 3270
+            strLine = strLine & _
+                HandleCsvColumn("[Err:" & Err.Number & ":" & Err.Description & "]") & ","
+                Resume Next
+            Case Else
+                Err.Raise Err.Number, Err.Source, Err.Description, Err.HelpFile, Err.HelpContext
+                 Resume
+            'GoTo ExitSub
+    End Select
+End Sub
+
+'Finds all tables, field names, and field descriptions, and writes output to a text file
+Public Sub ListAllTableFieldDescTypeSize(Optional fWriteToFile As Boolean = True, Optional fOpenFile As Boolean = True)
+On Error GoTo HandleError
+    Dim db As Database
+    Dim tdf As TableDef
+    Dim x As Double
+    Set db = CurrentDb
+    
+    'text file header
+    Dim strDescription As String
+    strDescription = "Table,Field,Description,DataType Name,DataType,DataSize"
+    
+    Debug.Print (strDescription)
+    
+    'Write text file body
+    For Each tdf In db.TableDefs
+        If Left(tdf.Name, 4) <> "MSys" Then ' Don't enumerate the system tables
+            For x = 0 To tdf.Fields.Count - 1
+                Dim strDataType As String
+                strDataType = GetPropertyValue(tdf.Fields(x).Properties("Type"))
+                'Ignore errors in case no description exists TODO: imporve error handler or find a way to test if "Description" property exists w/o throwing an error
+                strDescription = strDescription & vbCrLf
+                strDescription = strDescription & HandleCsvColumn(tdf.Name) & ","
+                strDescription = strDescription & HandleCsvColumn(tdf.Fields(x).Name) & ","
+                strDescription = strDescription & HandleCsvColumn(GetPropertyValue(tdf.Fields(x).Properties("Description"))) & ","
+                strDescription = strDescription & HandleCsvColumn(GetJetDataTypeEnumName(CLng(strDataType))) & ","
+                strDescription = strDescription & HandleCsvColumn((strDataType)) & ","
+                strDescription = strDescription & HandleCsvColumn(GetPropertyValue(tdf.Fields(x).Properties("Size")))
+            Next x
+       End If
+    Next tdf
+    Debug.Print strDescription
+    'Create text file
+    If fWriteToFile Then
+        Dim strFilename As String
+        strFilename = RemoveFilenameExtention(CurrentProject.Name) & "_FieldDescTypesSizes.csv"
+        SaveTextToFile strDescription, strFilename, fOpenNewFile:=fOpenFile
+    End If
+ExitSub:
+Exit Sub
+HandleError:
+    Select Case Err.Number
+        Case 3270
+            strDescription = strDescription & _
+                HandleCsvColumn("[Err:" & Err.Number & ":" & Err.Description & "]") & ","
+                Resume Next
+            Case Else
+                Err.Raise Err.Number, Err.Source, Err.Description, Err.HelpFile, Err.HelpContext
+                 Resume
+            'GoTo ExitSub
+    End Select
+End Sub
+
+Private Function GetPropertyValue(prp As Variant, Optional intChildDepth As Integer = 0) As String
+On Error GoTo HandleError
+    Dim strValue As String
+    strValue = vbNullString
+    Dim prpChild As Property
+    Select Case TypeName(prp)
+        Case "Property"
+                strValue = prp.Name & "="
+                On Error Resume Next
+                strValue = strValue & prp.Value
+                On Error GoTo HandleError
+        Case "Properties"
+            Dim intProperty As Integer
+            For intProperty = 1 To prp.Count
+                strValue = strValue & prp(intProperty).Name & "="
+                On Error Resume Next
+                strValue = strValue & prp(intProperty).Value
+                On Error GoTo HandleError
+                strValue = strValue & ";"
+                'strValue = intChildDepth & ":" & strValue & ";" & GetPropertyValue(prp(intProperty), intChildDepth + 1)
+            Next intProperty
+        Case Else
+            strValue = prp.Value
+    End Select
+    GetPropertyValue = strValue
+ExitSub:
+Exit Function
+HandleError:
+    Select Case Err.Number
+        Case 3270, 438
+            strValue = Err.Description
+            Resume Next
+        Case Else
+            Debug.Print "Err:" & Err.Number & ":" & Err.Description
+            strValue = Err.Description
+            Resume Next
+    End Select
+End Function
+
+Private Function HandleCsvColumn(ByVal strText As String)
+    strText = IIf(Left(strText, 1) = "=", "'" & strText, strText)
+    If Len(strText) > 0 Then
+        HandleCsvColumn = """" & Replace(strText, """", """""") & """"
+    End If
+End Function
+
+Public Function RemoveFilenameExtention(strFilename)
+    RemoveFilenameExtention = Left(strFilename, InStrRev(strFilename, ".", , vbBinaryCompare) - 1)
+End Function
+
+Public Function GetParentPath(strFilename)
+    GetParentPath = Left(strFilename, InStrRev(strFilename, "\", , vbBinaryCompare) - 1)
+End Function
+
+Public Function FileExists(ByVal strPath As String) As Boolean
+Dim FSO As Object
+    ' Note*: We used to use the vba.Dir function but using that function
+    ' will lock the folder and prevent it from being deleted.
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    FileExists = FSO.FileExists(strPath)
+    ' Clean up
+    Set FSO = Nothing
+End Function
+
+Public Function FolderExists(ByVal strPath As String) As Boolean
+Dim FSO As Object
+    ' Note*: We used to use the vba.Dir function but using that function
+    ' will lock the folder and prevent it from being deleted.
+    Set FSO = CreateObject("Scripting.FileSystemObject")
+    FolderExists = FSO.FolderExists(strPath)
+    ' Clean up
+    Set FSO = Nothing
+End Function
+
+Public Sub SaveTextToFile( _
+    strTextToPass As String, _
+    strFilename As String, _
+    Optional strPath As String = vbNullString, _
+    Optional fOpenNewFile As Boolean = False _
+)
+    If strPath = vbNullString Then
+        strPath = CurrentProject.Path
+    Else
+        BuildDir strPath
+    End If
+    strTextToPass = Trim(strTextToPass)
+    'save text to file
+    Dim strFullPath As String
+    strFullPath = strPath & "\" & RemoveForbiddenFilenameCharacters(strFilename)
+    Dim fCancel  As Boolean
+    If FileExists(strFullPath) Then
+        If IsFileOpenLocked(strFullPath) Then
+            If MsgBox("File appears to be open, click OK after closing the file:" & vbCrLf & strFullPath & _
+                vbCrLf & vbTab & "Cancel will stop attempts to write to the file", vbCritical + vbOKCancel, RemoveFilenameExtention(CurrentProject.Name)) = vbOK _
+            Then
+                Debug.Print "User attests file is closed"
+            Else
+                Debug.Print "User canceled writing to file"
+                fCancel = True
+            End If
+        End If
+    End If
+    If Not fCancel Then
+        'VBS Method
+        Dim FSO As Object
+        Set FSO = CreateObject("Scripting.FileSystemObject")
+        Dim oFile As Object
+        Set oFile = FSO.CreateTextFile(strFullPath, True)
+        oFile.WriteLine strTextToPass
+        
+        'VBA method
+        'Open strFullPath For Output As #1
+        'Write #1, strTextToPass
+        'Close #1
+        oFile.Close
+        
+        If fOpenNewFile Then
+            'Open file
+            'Shell "Notepad.exe " & CurrentProject.Path & "\" & strFileName, vbNormalFocus
+            OpenFileWithExplorer strFullPath
+        End If
+        'cleanup
+        Set FSO = Nothing
+        Set oFile = Nothing
+    End If
+End Sub
+
+Public Function GetJetDataTypeEnumName(intEnum As Long)
+    Select Case intEnum
+        Case 101
+            GetJetDataTypeEnumName = "dbAttachment"
+        Case 16
+            GetJetDataTypeEnumName = "dbBigInt"
+        Case 9
+            GetJetDataTypeEnumName = "dbBinary"
+        Case 1
+            GetJetDataTypeEnumName = "dbBoolean"
+        Case 2
+            GetJetDataTypeEnumName = "dbByte"
+        Case 4
+            GetJetDataTypeEnumName = "dbLong"
+        Case 10
+            GetJetDataTypeEnumName = "bdText"
+        Case 7
+            GetJetDataTypeEnumName = "dbDouble"
+        Case 12
+            GetJetDataTypeEnumName = "dbMemo"
+        Case 8
+            GetJetDataTypeEnumName = "dbDate"
+        Case 6
+            GetJetDataTypeEnumName = "dbSingle"
+            
+    End Select
+End Function
+
+Public Function BuildDir(strPath) As Boolean
+    On Error Resume Next
+    Dim FSO As Object ' As Scripting.FileSystemObject
+    Set FSO = CreateObject("Scripting.FileSystemObject") ' New Scripting.FileSystemObject
+    If Not FSO.FolderExists(strPath) Then
+        Err.Clear
+        Dim arryPaths As Variant
+        Dim strBuiltPath As String, intDir As Integer, fRestore As Boolean: fRestore = False
+        If Left(strPath, 2) = "\\" Then
+            strPath = Right(strPath, Len(strPath) - 2)
+            fRestore = True
+        End If
+        arryPaths = Split(strPath, "\")
+        'Restore Server file path
+        If fRestore Then
+            arryPaths(0) = "\\" & arryPaths(0)
+        End If
+        For intDir = 0 To UBound(arryPaths)
+            strBuiltPath = strBuiltPath & arryPaths(intDir)
+            If Not FSO.FolderExists(strBuiltPath) Then
+                FSO.CreateFolder strBuiltPath
+            End If
+            strBuiltPath = strBuiltPath & "\"
+        Next
+    End If
+    BuildDir = (Err.Number = 0) 'True if no errors
+    Set FSO = Nothing
+End Function
+
+Public Function RemoveForbiddenFilenameCharacters(strFilename As String) As String
+'https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247(v=vs.85).aspx
+'< (less than)
+'> (greater than)
+': (colon)
+'" (double quote)
+'/ (forward slash)
+'\ (backslash)
+'| (vertical bar or pipe)
+'? (question mark)
+'* (asterisk)
+Dim strForbidden As Variant
+    For Each strForbidden In Array("/", "\", "|", ":", "*", "?", "<", ">", """")
+        strFilename = Replace(strFilename, strForbidden, "_")
+    Next
+    RemoveForbiddenFilenameCharacters = strFilename
+End Function
+
+Public Sub OpenFileWithExplorer(ByRef strFilePath As String)
+    Dim wshShell
+    Set wshShell = CreateObject("WScript.Shell")
+    wshShell.Exec ("Explorer.exe " & strFilePath)
+    Set wshShell = Nothing
+End Sub
+
+Function IsFileOpenLocked(FileName As String) As Boolean
+    Dim ff As Long, ErrNo As Long
+
+    On Error Resume Next
+    ff = FreeFile()
+    Open FileName For Input Lock Read As #ff
+    Close ff
+    ErrNo = Err
+    On Error GoTo 0
+
+    Select Case ErrNo
+    Case 0:    IsFileOpenLocked = False
+    Case 70:   IsFileOpenLocked = True
+    Case Else: Error ErrNo
+    End Select
+End Function
